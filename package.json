@@ -1,0 +1,16 @@
+{
+  "name": "knowledge",
+  "version": "1.0.0",
+  "description": "team knowledge",
+  "main": "index.js",
+  "repository": "git@gitlab.com:team401/knowledge.git",
+  "author": "causes",
+  "license": "MIT",
+  "devDependencies": {
+    "vuepress": "^2.0.0-beta.23"
+  },
+  "scripts": {
+    "docs:dev": "vuepress dev docs",
+    "docs:build": "vuepress build docs"
+  }
+}
