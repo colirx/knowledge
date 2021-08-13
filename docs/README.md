@@ -3,9 +3,6 @@ home: true
 heroText: 团队博客
 tagline: 群策群力
 actions:
-- text: 开始
-  link: /start/
-  type: secondary
 features:
 - title: GitLab
   details: GitLab 提供代码的托管机制。
