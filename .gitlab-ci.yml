@@ -1,0 +1,14 @@
+pages:
+  cache:
+    paths:
+    - node_modules/
+  script:
+    - rm -rf public/*
+    - rm -rf docs/.vuepress/dist
+    - yarn --frozen-lockfile
+    - yarn docs:build --dest public
+  artifacts:
+    paths:
+    - public
+  only:
+  - master
