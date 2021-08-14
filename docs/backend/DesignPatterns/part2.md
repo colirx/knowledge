@@ -1,7 +1,7 @@
 ---
 title: 设计模式-创建者模式
 categories:
-  - base
+  - backend
 tags:
   - DesignPatterns
 author: causes
@@ -19,9 +19,9 @@ author: causes
 - 原型模式。
 - 建造者模式。
 
-### 单例模式
+## 单例模式
 
-#### 单例模式介绍
+### 单例模式介绍
 
 单例模式（Singleton Pattern）是 Java 中最简单的设计模式之一，这种类型的设计模式属于创建者模式。这种模式涉及到一个类，这个类创建自己的对象，并且保证只有一个对象被创建，再次创建则复用上一次创建的对象，所以叫做单例对象。
 
@@ -32,174 +32,177 @@ author: causes
 - 饿汉式：类加载就会创建对象。
 - 懒汉式：只有使用到对应的类才会创建对象。
 
-#### 单例模式实现
+### 单例模式实现
 
-- 饿汉式：
-  - 方式一：使用静态变量的方式：
+#### 饿汉式：
 
-      ```java
-      /**
-      * 饿汉式单例模式，静态变量的方式
-      */
-      public class Singleton {
-      
-        // 1. 私有构造方法。
-        private Singleton() {
-        }
-      
-        // 2. 在本类中创建本类对象。
-        private static Singleton instance = new Singleton();
-      
-        // 3. 提供一个公共的访问方式让外界获取该对象、
-        public static Singleton getInstance() {
-          return instance;
-        }
-      }
-      ```
+**方式一：使用静态变量的方式**
 
-      ```java
-      public class Client {
-        public static void main(String[] args) {
-          Singleton instance = Singleton.getInstance();
-          Singleton instance2 = Singleton.getInstance();
-          // 比较地址
-          System.out.println(instance == instance2);
-        }
-      }
-      ```
+```java
+/**
+* 饿汉式单例模式，静态变量的方式
+*/
+public class Singleton {
 
-  - 方式二：使用静态代码块的方式：
+  // 1. 私有构造方法。
+  private Singleton() {
+  }
 
-      ```java
-      /**
-      * 饿汉式单例模式：使用静态代码块的方式
-      */
-      public class Singleton {
-        // 1. 私有构造方法
-        private Singleton() {
-        }
-      
-        private static Singleton instance;
-      
-        // 2. 静态代码块进行赋值
-        static {
+  // 2. 在本类中创建本类对象。
+  private static Singleton instance = new Singleton();
+
+  // 3. 提供一个公共的访问方式让外界获取该对象、
+  public static Singleton getInstance() {
+    return instance;
+  }
+}
+```
+
+```java
+public class Client {
+  public static void main(String[] args) {
+    Singleton instance = Singleton.getInstance();
+    Singleton instance2 = Singleton.getInstance();
+    // 比较地址
+    System.out.println(instance == instance2);
+  }
+}
+```
+
+**方式二：使用静态代码块的方式**
+
+```java
+/**
+* 饿汉式单例模式：使用静态代码块的方式
+*/
+public class Singleton {
+  // 1. 私有构造方法
+  private Singleton() {
+  }
+
+  private static Singleton instance;
+
+  // 2. 静态代码块进行赋值
+  static {
+    instance = new Singleton();
+  }
+
+  public static Singleton getInstance() {
+    return instance;
+  }
+}
+```
+
+总结：无论是使用静态变量还是静态代码块的方式，都是在类加载的时候就初始化了，所以会出现浪费内存的问题。
+
+**方式三：枚举类加载方式**
+
+```java
+/**
+* 饿汉式单例模式，枚举类方式
+*/
+public enum Singleton {
+  INSTANCE;
+}
+```
+
+枚举类方式同样属于饿汉式单例模式，因为枚举类是线程安全的，并且只会装载一次。枚举的写法十分简单，并且枚举类型是唯一一种不会被破坏的单例模式。所以在不考虑浪费空间的情况下，优先选择枚举类的单例模式。
+
+#### 懒汉式
+
+**方式一：线程不安全**
+
+```java
+public class Singleton {
+  // 1. 私有化构造方法
+  private Singleton() {
+  }
+
+  private static Singleton instance;
+
+  // 2. 首次使用类创建，其余返回已有的
+  public static Singleton getInstance() {
+    if (instance != null) {
+      instance = new Singleton();
+    }
+    return instance;
+  }
+}
+```
+
+这种方式其实是有问题的，在多线程状况下很有可能破坏我们想要的单例模式。
+
+**方式二：线程安全**
+
+```java
+public class Singleton {
+  private Singleton() {
+  }
+
+  private static Singleton instance;
+  // 解决线程问题，其实只需要加上一个 synchronized 关键字即可，可以保证同一时间只有一个线程使用此方法。
+  public static synchronized Singleton getInstance() {
+    if (instance != null) {
+      instance = new Singleton();
+    }
+    return instance;
+  }
+}
+```
+
+使用关键字 `synchronized` 虽然可以解决线程不安全的问题，但是同样会引起性能问题，因为只有第一次执行此方法的时候，变量 `instance` 才会执行赋值操作，其余的时间都是在执行获取 `instance` 的操作，而获取 instance 本身就是安全的。
+
+**方式三：双重检测锁**
+
+```java
+package com.maple.pattern.singleton.demo4;
+
+public class Singleton {
+
+  private Singleton() {
+  }
+  
+  // 多线程模式下可能会出现空指针问题，原因是 JVM 在实例化对象的时候可能会被 CPU 进行指令重排操作（有兴趣可以去看并发编程），所以使用 volatile 能保证可见性和有序性。
+  private static volatile Singleton instance;
+
+  public static Singleton getInstance() {
+    // 首次判断，假如 instance 不为 null，则直接返回对象，提升效率，但是这仍然挡不住线程问题
+    if (instance == null) {
+      // 使用同步代码块锁当前类，挡住线程问题
+      synchronized (Singleton.class) {
+        // 第二次判断
+        if (instance==null){
           instance = new Singleton();
         }
-      
-        public static Singleton getInstance() {
-          return instance;
-        }
       }
-    ```
+    }
+    return instance;
+  }
+}
+```
 
-      总结：无论是使用静态变量还是静态代码块的方式，都是在类加载的时候就初始化了，所以会出现浪费内存的问题。
+双重检测锁模式仅仅锁住了赋值的操作也就是写操作，提升了性能。并且使用 `volatile` 来保证了可见性和有序性。我们推荐使用双重检查锁模式。
 
-  - 方式三：枚举类加载方式：
+**方式四：静态内部类方式**
 
-      ```java
-      /**
-      * 饿汉式单例模式，枚举类方式
-      */
-      public enum Singleton {
-        INSTANCE;
-      }
-      ```
+```java
+public class Singleton {
+  private Singleton() {
+  }
 
-      枚举类方式同样属于饿汉式单例模式，因为枚举类是线程安全的，并且只会装载一次。枚举的写法十分简单，并且枚举类型是唯一一种不会被破坏的单例模式。所以在不考虑浪费空间的情况下，优先选择枚举类的单例模式。
-- 懒汉式：
-  - 方式一：线程不安全：
+  private static class SingletonHolder{
+    private static final Singleton INSTANCE = new Singleton();
+  }
 
-      ```java
-      public class Singleton {
-        // 1. 私有化构造方法
-        private Singleton() {
-        }
-      
-        private static Singleton instance;
-      
-        // 2. 首次使用类创建，其余返回已有的
-        public static Singleton getInstance() {
-          if (instance != null) {
-            instance = new Singleton();
-          }
-          return instance;
-        }
-      }
-      ```
+  private static Singleton getInstance(){
+    return SingletonHolder.INSTANCE;
+  }
+}
+```
 
-      这种方式其实是有问题的，在多线程状况下很有可能破坏我们想要的单例模式。
+JVM 在加载外部类的时候并不会加载内部类，只有内部类的属性/方法被调用的时候才会被加载，并且初始化其静态属性。静态属性由于被 static 修饰，保证只实例化一次，并且严格保证执行顺序（解决指令重排）。
 
-  - 方式二：线程安全：
-
-      ```java
-      public class Singleton {
-        private Singleton() {
-        }
-      
-        private static Singleton instance;
-        // 解决线程问题，其实只需要加上一个 synchronized 关键字即可，可以保证同一时间只有一个线程使用此方法。
-        public static synchronized Singleton getInstance() {
-          if (instance != null) {
-            instance = new Singleton();
-          }
-          return instance;
-        }
-      }
-      ```
-
-      使用关键字 `synchronized` 虽然可以解决线程不安全的问题，但是同样会引起性能问题，因为只有第一次执行此方法的时候，变量 `instance` 才会执行赋值操作，其余的时间都是在执行获取 `instance` 的操作，而获取 instance 本身就是安全的。
-
-  - 方式三：双重检测锁：
-
-      ```java
-      package com.maple.pattern.singleton.demo4;
-      
-      public class Singleton {
-      
-        private Singleton() {
-        }
-        
-        // 多线程模式下可能会出现空指针问题，原因是 JVM 在实例化对象的时候可能会被 CPU 进行指令重排操作（有兴趣可以去看并发编程），所以使用 volatile 能保证可见性和有序性。
-        private static volatile Singleton instance;
-      
-        public static Singleton getInstance() {
-          // 首次判断，假如 instance 不为 null，则直接返回对象，提升效率，但是这仍然挡不住线程问题
-          if (instance == null) {
-            // 使用同步代码块锁当前类，挡住线程问题
-            synchronized (Singleton.class) {
-              // 第二次判断
-              if (instance==null){
-                instance = new Singleton();
-              }
-            }
-          }
-          return instance;
-        }
-      }
-      ```
-
-      双重检测锁模式仅仅锁住了赋值的操作也就是写操作，提升了性能。并且使用 `volatile` 来保证了可见性和有序性。我们推荐使用双重检查锁模式。
-
-  - 方式四：静态内部类方式
-
-      ```java
-      public class Singleton {
-        private Singleton() {
-        }
-      
-        private static class SingletonHolder{
-          private static final Singleton INSTANCE = new Singleton();
-        }
-      
-        private static Singleton getInstance(){
-          return SingletonHolder.INSTANCE;
-        }
-      }
-      ```
-
-      JVM 在加载外部类的时候并不会加载内部类，只有内部类的属性/方法被调用的时候才会被加载，并且初始化其静态属性。静态属性由于被 static 修饰，保证只实例化一次，并且严格保证执行顺序（解决指令重排）。
-
-      静态内部类是一种极其优秀的单例模式，是开源项目中比较常用的一种方式。在没有加任何锁的情况下，保证了多线程下的安全，并且没有任何的性能和空间的浪费。
+静态内部类是一种极其优秀的单例模式，是开源项目中比较常用的一种方式。在没有加任何锁的情况下，保证了多线程下的安全，并且没有任何的性能和空间的浪费。
 
 ---
 
@@ -207,7 +210,7 @@ author: causes
 
 ![image-20210801113617190](./images/image-20210801113617190.png)
 
-### 工厂模式
+## 工厂模式
 
 在 Java 中，万物皆对象，这些对象都需要去创建。如果在创建的时候都去 new 对象，那么其实和对应的类耦合度会很高。比如像我们之前使用的多态，虽然比较方便，但是耦合度其实也是比较高的。如果我们需要更换对象，那么所有需要使用到该对象的地方都需要更改代码，这显然违反了开闭原则（对修改关闭）。
 
@@ -219,7 +222,7 @@ author: causes
 - 工厂方法模式。
 - 抽象工厂模式。
 
-#### 简单工厂模式
+### 简单工厂模式
 
 简单工厂模式其实不是 23 种设计模式之一，但是因为它在平时使用太多了，所以讲一下。
 
@@ -305,9 +308,11 @@ public class CoffeeStore {
 **简单工厂模式的优缺点**
 
 优点：
+
 - 封装了创建对象的过程，可以通过参数直接获得对象，将对象的创建和业务逻辑层分离。降低了使用和创建的耦合，更容易维护。
 
 缺点：
+
 - 增减产品还是需要修改工厂类的代码，其实还是违反了开闭原则。这也是为什么没有收录到 23 种设计模式中的原因之一。
 
 **扩展：静态工厂**
@@ -330,7 +335,7 @@ public class SimpleCoffeeFactory {
 }
 ```
 
-#### 工厂方法模式
+### 工厂方法模式
 
 简单工厂模式其实还是违背了开闭原则，假如我们使用工厂方法模式就可以解决这个问题。它的思想就是定义一个用于创建对象的接口，让子类去决定实例化哪一个产品类对象。
 
@@ -348,14 +353,18 @@ public class SimpleCoffeeFactory {
 上面的类图描述的就是工厂方法模式中的角色关系：
 
 - 右边的部分：  
+
     首先就是 Coffee 接口，其中具体的实现类有 AmericanCoffee，LatteCoffee。
+
 - 中间的部分：  
+    
     中间的 Coffee Store 是咖啡店，拥有点咖啡的功能。  
     它依赖于 Coffee，也就是依赖于抽象不依赖于具体实现，符合我们之前说的依赖倒转原则。
+
 - 左边的部分：  
+    
     首先有一个 CoffeeFactory 的接口，拥有 createCoffee 方法。  
     具体的实现类有 AmericanCoffeeFactory（生产美式咖啡），LatteCoffeeFactory（生产拿铁咖啡）。
-
 
 ```java
 public abstract class Coffee {
@@ -440,7 +449,7 @@ public class Client {
 缺点：
 - 要增加内容的时候需要增加工厂和对应的产品，创建的对象有点多，增加了系统的复杂性。
 
-#### 抽象工厂模式
+### 抽象工厂模式
 
 **抽象工厂模式介绍**
 
@@ -586,7 +595,7 @@ public class Client {
 - 当需要创建的对象是一系列相关的或者相互依赖的产品时，可以使用抽象工厂模式。
 - 系统中有多个产品族，但是每次只使用其中一个产品族中的产品，比如某人只喜欢穿一个品牌的衣服裤子。
 
-#### 工厂模式扩展
+### 工厂模式扩展
 
 在实际的应用中，经常有一种固定的写法：配置文件 + 反射的方式，来进行类的创建：
 
@@ -658,7 +667,7 @@ public class Client {
     }
     ```
 
-### 原型模式
+## 原型模式
 
 类似克隆羊，使用一个已经创建的实例作为原型，通过复制将该原型对象来创建一个和原型对象相同的新对象。
 
@@ -756,7 +765,7 @@ public class Client {
 
 注意必须实现序列化接口，否则就会抛出异常。
 
-### 建造者模式
+## 建造者模式
 
 建造者模式其实就是将构建和装配两部分相互分离，让同样的构建过程有可能会创建不同的表示的设计模式。
 
@@ -1033,7 +1042,7 @@ public class Client {
 
 这种虽然设计起来比较复杂，但是使用起来异常方便。
 
-### 创建者模式的对比
+## 创建者模式的对比
 
 工厂方法模式 vs 建造者模式：
 
