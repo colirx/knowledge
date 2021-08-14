@@ -1,9 +1,9 @@
 ---
-title: 实际操作篇
+title: Linux-实际操作篇
 categories:
- - backend
+  - backend
 tags:
- - linux
+  - Linux
 author: causes
 ---
 

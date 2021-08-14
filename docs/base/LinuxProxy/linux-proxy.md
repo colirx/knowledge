@@ -1,10 +1,10 @@
 ---
-title: Linux 下如何进行科学上网
+title: Linux-如何进行科学上网
 categories:
  - backend
 tags:
- - linux
- - proxy
+ - Linux
+ - Proxy
 author: causes
 ---
 
@@ -25,4 +25,4 @@ Linux 下的安装下载 AppImage 即可，AppImage 是各种发行版通用的�
 2. 在 Google Chrome 的设置中设置代理模式。
 3. 使用插件 SwitchyOmega 手动设置代理，在 proxy 选项中设置 HTTP 的端口号 12333 和主机 127.0.0.1。
 
-除此之外，假如想要设置 Git 之类的工具代理，那么只能手动进行设置，比如 `export http_proxy xxx`。
+除此之外，假如想要设置 Git 之类的工具代理，那:wq么只能手动进行设置，比如 `export http_proxy xxx`。
