@@ -1,9 +1,9 @@
 ---
-title: 基础篇
+title: Linux-基础篇
 categories:
- - backend
+  - backend
 tags:
- - linux
+  - Linux
 author: causes
 ---
 

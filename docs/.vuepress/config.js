@@ -1,5 +1,6 @@
 module.exports = {
   base: '/knowledge/',
+  title: '知识库',
   theme: 'reco',
   markdown: {
     lineNumbers: true
