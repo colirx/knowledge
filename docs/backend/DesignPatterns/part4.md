@@ -1085,3 +1085,632 @@ public class Client {
 
 系统中对象存在复杂的引用关系时，当想创建一个运行于多个类之间的对象，但是又不想生成新的子类时。
 
+## 迭代器模式
+
+提供一个对象，来访问聚合对象的一系列数据，而不暴露聚合对象的内部。
+
+**结构**
+
+- 抽象聚合角色（Aggregate）：定义增删查和创建迭代器对象的接口。
+- 具体聚合角色（ConcreteAggregate）：实现抽象聚合类，返回一个具体迭代器实例。
+- 抽象迭代器（Iterator）：定义访问和遍历聚合元素的接口，通常包含 `hasNext`、`next` 等方法。
+- 具体迭代器（ConcreteIterator）：实现抽象迭代器的方法，完成对聚合对象的遍历、并且记录遍历的位置。
+
+**案例**
+
+```java
+@Data
+@AllArgsConstructor
+public class Student {
+
+  private String name;
+  private String number;
+}
+```
+
+```java
+/**
+ * 抽象迭代器接口
+ */
+public interface StudentIterator {
+
+  boolean hasNext();
+
+  Student next();
+}
+
+/**
+ * 具体迭代器角色
+ */
+public class StudentIteratorImpl implements StudentIterator {
+
+  private List<Student> list;
+  private int position = 0;
+
+  public StudentIteratorImpl(List<Student> list) {
+    this.list = list;
+  }
+
+  @Override
+  public boolean hasNext() {
+    return position < list.size();
+  }
+
+  @Override
+  public Student next() {
+    Student currentStudent = list.get(position);
+    position++;
+    return currentStudent;
+  }
+}
+```
+
+```java
+/**
+ * 聚合对象接口
+ */
+public interface StudentAggregate {
+
+  void addStudent(Student student);
+
+  void removeStudent(Student student);
+
+  StudentIterator getStudentIterator();
+}
+
+/**
+ * 具体聚合对象
+ */
+public class StudentAggregateImpl implements StudentAggregate {
+
+  private List<Student> list = new ArrayList<>();
+
+  @Override
+  public void addStudent(Student student) {
+    list.add(student);
+  }
+
+  @Override
+  public void removeStudent(Student student) {
+    list.remove(student);
+  }
+
+  @Override
+  public StudentIterator getStudentIterator() {
+    return new StudentIteratorImpl(list);
+  }
+}
+```
+
+```java
+public class Client {
+  public static void main(String[] args) {
+    // 1. 创建聚合对象
+    StudentAggregate aggregate = new StudentAggregateImpl();
+    // 2. 测试数据
+    aggregate.addStudent(new Student("zhangsan","001"));
+    aggregate.addStudent(new Student("lisi","002"));
+    aggregate.addStudent(new Student("wangwu","003"));
+    aggregate.addStudent(new Student("zhaoliu","004"));
+    // 3. 获取迭代器
+    StudentIterator iterator = aggregate.getStudentIterator();
+    while (iterator.hasNext()) {
+      System.out.println(iterator.next());
+    }
+  }
+}
+```
+
+**优缺点和使用场景**
+
+优点：
+
+- 支持多种遍历方式，迭代方式方便更换。
+- 简化了聚合类。
+- 引入了抽象层，满足开闭原则。
+
+缺点：
+
+- 增加了类的个数。
+
+使用场景：
+
+- 给聚合对象提供多种遍历方式。
+
+## 访问者模式
+
+封装了一些作用于某种数据结构中的各元素的操作，可以不改变数据结构前提下定义作用于这些新元素的操作。
+
+**结构**
+
+- 抽象访问者（Visitor）：定义了对每一个元素访问的行为，参数是可以访问的元素。
+- 具体访问者（ConcreteVisitor）：给出对每一个元素类访问时产生的具体行为。
+- 抽象元素（Element）：定义了一个接受访问者的方法（accept），意义是指，每一个元素都要可以被访问者访问。
+- 具体元素（ConcreteElement）：提供接受访问方法的的具体实现，而这个具体的实现，通常情况下是使用访问者提供的访问该元素类的方法。
+- 对象结构（Object Structure）：定义对象结构，对象结构是一个抽象表述。具体可以理解为一个具有容器性质或者复合对象特征的类，会含有一组元素，并且可以迭代这些元素。
+
+**案例**
+
+```java
+/**
+ * 抽象访问者角色
+ */
+public interface Person {
+
+  // 宠物猫喂食
+  void feed(Cat cat);
+
+  // 宠物狗喂食
+  void feed(Dog dog);
+}
+```
+
+```java
+/**
+ * 抽象元素类，接受指定访问者访问的功能
+ */
+public interface Animal {
+
+  void accept(Person person);
+}
+
+/**
+ * 具体元素角色类，宠物猫
+ */
+public class Cat implements Animal {
+
+  @Override
+  public void accept(Person person) {
+    person.feed(this);
+  }
+}
+
+/**
+ * 具体元素角色类，宠物狗
+ */
+public class Dog implements Animal {
+
+  @Override
+  public void accept(Person person) {
+    person.feed(this);
+  }
+}
+```
+
+```java
+/**
+ * 具体访问者角色类(宠物主)
+ */
+public class Owner implements Person {
+
+  @Override
+  public void feed(Cat cat) {
+    System.out.println("喂食猫");
+  }
+
+  @Override
+  public void feed(Dog dog) {
+    System.out.println("喂食狗");
+  }
+}
+
+/**
+ * 具体访问者（其他人）
+ */
+public class Someone implements Person {
+
+  @Override
+  public void feed(Cat cat) {
+    System.out.println("其他人喂食猫");
+  }
+
+  @Override
+  public void feed(Dog dog) {
+    System.out.println("其他人喂食狗");
+  }
+}
+```
+
+```java
+/**
+ * 对象结构类
+ */
+public class Home {
+  // 定义一个集合对象，用来存储元素对象
+  List<Animal> nodeList = new ArrayList<>();
+
+  // 添加元素功能
+  public void add(Animal animal) {
+    nodeList.add(animal);
+  }
+
+  // 遍历集合，获取每一个元素，让访问者访问每一个元素
+  public void action(Person person) {
+    nodeList.forEach(animal -> animal.accept(person));
+  }
+}
+```
+
+```java
+public class Client {
+  public static void main(String[] args) {
+    // 1. 创建 HOME
+    Home home = new Home();
+    home.add(new Dog());
+    home.add(new Cat());
+
+    // 2. 创建宠物主
+    Owner owner = new Owner();
+
+    // 3. 主人喂食
+    home.action(owner);
+  }
+}
+```
+
+**优缺点和使用场景**
+
+优点：
+
+- 扩展性好。
+- 复用性好。
+- 分离无关行为。
+
+缺点：
+
+- 对象结构变化困难。
+- 违反了依赖导致原则。
+
+使用场景：
+
+- 对象结构相对稳定，但是操作算法经常变更。
+- 对象需要提供多种不同且不相关操作，并且要避免让这些操作的变化影响对象的结构。
+
+## 备忘录模式
+
+提供了一种状态恢复机制，使用户可以方便地恢复到一个历史步骤。
+
+**结构**
+
+- 发起人（Originator）：记录当前时刻的内部状态信息，提供创建备忘录和恢复备忘录数据的功能，实现其他业务功能，可以访问备忘录中的所有信息。
+- 备忘录（Memento）：存储发起人的内部状态，需要时提供这些内部状态给发起人。
+- 管理者（Caretaker）：对备忘录进行管理，提供保存和获取备忘录的功能，但其不能对备忘录内部内容进行访问和修改。
+
+备忘录有两个等效接口：
+
+- 窄接口：管理者和其他发起人之外的任何对象看到的是窄接口，这个窄接口只允许它将备忘录对象传递给其他对象。
+- 宽接口：与管理者看到的窄接口相反，这个宽接口允许读取所有数据，以便于恢复发起人对象的内部状态。
+
+**白箱备忘录模式案例**
+
+```java
+/**
+ * 发起人，游戏角色
+ */
+@Data
+public class GameRole {
+
+  // 生命力
+  private int vit;
+  // 攻击力
+  private int atk;
+  // 防御力
+  private int def;
+
+  // 初始化状态
+  public void initState() {
+    this.vit = 100;
+    this.atk = 100;
+    this.def = 100;
+  }
+
+  // 战斗后
+  public void fight() {
+    this.vit = 0;
+    this.atk = 0;
+    this.def = 0;
+  }
+
+  // 保存角色状态功能
+  public RoleStateMemento saveState() {
+    return new RoleStateMemento(vit, atk, def);
+  }
+
+  // 恢复之前的状态
+  public void recoverState(RoleStateMemento roleStateMemento) {
+    this.vit = roleStateMemento.getVit();
+    this.atk = roleStateMemento.getAtk();
+    this.def = roleStateMemento.getDef();
+  }
+
+  // 展示状态
+  public void display() {
+    System.out.println(String.format("角色生命力：%s", vit));
+    System.out.println(String.format("角色攻击力：%s", atk));
+    System.out.println(String.format("角色防御力：%s", def));
+  }
+}
+```
+
+```java
+/**
+ * 备忘录角色类
+ */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class RoleStateMemento {
+
+  // 生命力
+  private int vit;
+  // 攻击力
+  private int atk;
+  // 防御力
+  private int def;
+}
+```
+
+```java
+/**
+ * 备忘录管理
+ */
+@Data
+public class RoleStateCaretaker {
+
+  private RoleStateMemento roleStateMemento;
+}
+```
+
+```java
+public class Client {
+  public static void main(String[] args) {
+    // 1. 创建游戏角色
+    GameRole gameRole = new GameRole();
+    // 2. 初始化
+    gameRole.initState();
+    // 3. 展示
+    gameRole.display();
+    // 4. 备份
+    RoleStateCaretaker roleStateCaretaker = new RoleStateCaretaker();
+    roleStateCaretaker.setRoleStateMemento(gameRole.saveState());
+    // 5. 战斗之后
+    gameRole.fight();
+    // 6. 展示
+    gameRole.display();
+    // 7. 恢复之前的状态
+    gameRole.recoverState(roleStateCaretaker.getRoleStateMemento());
+    // 8. 展示
+    gameRole.display();
+  }
+}
+```
+
+
+**黑箱备忘录案例**
+
+修改内容不多，主要有：
+
+```java
+/**
+ * 备忘录接口，对外提供窄接口
+ */
+public interface Memento {
+}
+```
+
+```java
+/**
+ * 发起人，游戏角色
+ */
+@Data
+public class GameRole {
+
+  // 生命力
+  private int vit;
+  // 攻击力
+  private int atk;
+  // 防御力
+  private int def;
+
+  // 初始化状态
+  public void initState() {
+    this.vit = 100;
+    this.atk = 100;
+    this.def = 100;
+  }
+
+  // 战斗后
+  public void fight() {
+    this.vit = 0;
+    this.atk = 0;
+    this.def = 0;
+  }
+
+  // 保存角色状态功能
+  public RoleStateMemento saveState() {
+    return new RoleStateMemento(vit, atk, def);
+  }
+
+  // 恢复之前的状态
+  public void recoverState(Memento memento) {
+    RoleStateMemento roleStateMemento = (RoleStateMemento) memento;
+    this.vit = roleStateMemento.getVit();
+    this.atk = roleStateMemento.getAtk();
+    this.def = roleStateMemento.getDef();
+  }
+
+  // 展示状态
+  public void display() {
+    System.out.println(String.format("角色生命力：%s", vit));
+    System.out.println(String.format("角色攻击力：%s", atk));
+    System.out.println(String.format("角色防御力：%s", def));
+  }
+
+  @Data
+  @NoArgsConstructor
+  @AllArgsConstructor
+  class RoleStateMemento implements Memento {
+
+    private int vit;
+    private int atk;
+    private int def;
+  }
+}
+```
+
+**优缺点和使用场景**
+
+优点：
+
+1. 提供了状态，可以方便的恢复之前的状态。
+1. 实现了内部状态的封装。
+1. 简化了发起人，发起人不需要保存备份。
+
+缺点：
+
+1. 资源消耗大，假如需要保存的内容较多，则将会占用较大的内存。
+
+使用场景：
+
+1. 需要保存和恢复数据的场景。
+
+## 解释器模式
+
+将需要解决的问题提出规则，抽象为一种语言，比如运算。
+
+**结构**
+
+1. 抽象表达式（Abstract Expression）：定义解释器接口，约定解释器的解释操作，主要包含方法 `interpret`
+1. 终结符表达式（Terminal Expression）：是抽象表达式的子类，用来实现和终结符相关的操作。
+1. 非终结符表达式（Nonterminal Expression）：抽象表达式的子类。
+1. 环境（Context）：包含各个解释器需要的数据或者是公共的功能，一般用于传递被所有解释器共享的数据。
+1. 客户端（Client）：将需要分析的句子或者表达式转换为解释器描述的抽象语法树，然后调用解释器的解释方法。
+
+**案例**
+
+```java
+/**
+ * 抽象表达式类
+ */
+public abstract class AbstractExpression {
+  public abstract int interpret(Context context);
+}
+```
+
+```java
+/**
+ * 环境
+ */
+public class Context {
+
+  // 存储变量和对应的值
+  private Map<Variable, Integer> map = new HashMap<>();
+
+  public void assign(Variable variable, Integer value) {
+    map.put(variable, value);
+  }
+
+  public int getValue(Variable variable) {
+    return map.get(variable);
+  }
+}
+```
+
+```java
+/**
+ * 封装表达式的类
+ */
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class Variable extends AbstractExpression {
+
+  // 声明存储变量名的成员变量
+  private String name;
+
+  @Override
+  public int interpret(Context context) {
+    // 直接返回变量的值
+    return context.getValue(this);
+  }
+}
+```
+
+```java
+/**
+ * 加法表达式类
+ */
+@Data
+@AllArgsConstructor
+public class Plus extends AbstractExpression {
+
+  // 加号左边的表达式
+  private AbstractExpression left;
+  // 加号右边的表达式
+  private AbstractExpression right;
+
+  @Override
+  public int interpret(Context context) {
+    return left.interpret(context) + right.interpret(context);
+  }
+}
+
+/**
+ * 减法表达式类
+ */
+@Data
+@AllArgsConstructor
+public class Minus extends AbstractExpression {
+
+  // 减号左边的表达式
+  private AbstractExpression left;
+  // 减号右边的表达式
+  private AbstractExpression right;
+
+  @Override
+  public int interpret(Context context) {
+    return left.interpret(context) - right.interpret(context);
+  }
+}
+```
+
+```java
+public class Client {
+  public static void main(String[] args) {
+    // 1. 创建环境对象
+    Context context = new Context();
+    // 2. 创建变量对象
+    Variable a = new Variable("a");
+    Variable b = new Variable("b");
+    Variable c = new Variable("c");
+    Variable d = new Variable("d");
+    // 3. 存储
+    context.assign(a, 1);
+    context.assign(b, 2);
+    context.assign(c, 3);
+    context.assign(d, 4);
+    // 4. 获取抽象语法树
+    AbstractExpression expression = new Minus(a, new Plus(new Minus(b, c), d));
+    System.out.println(expression.interpret(context));
+  }
+}
+```
+
+**优缺点和使用场景**
+
+优点：
+
+1. 易于改变和扩展文法。
+1. 实现文法较为容易。
+1. 增加新的解释表达式比较方法。
+
+缺点：
+
+1. 复杂文法难以维护。
+1. 执行效率低。
+
+使用场景：
+
+1. 文法较为简单，并且执行效率不是关键问题时。
+1. 问题重复出现，并且可以用一种简单的语言表达时。
+1. 语言需要解释执行，并且句子可以表示为一个抽象语法树时。
