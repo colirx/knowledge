@@ -1,4 +1,11 @@
-# 实际操作篇
+---
+title: 实际操作篇
+categories:
+ - backend
+tags:
+ - linux
+author: causes
+---
 
 ## 远程登陆（Xshell XFTP）
 

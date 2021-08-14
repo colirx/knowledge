@@ -1,4 +1,11 @@
-# 基础篇
+---
+title: 基础篇
+categories:
+ - backend
+tags:
+ - linux
+author: causes
+---
 
 ## Linux 入门
 
