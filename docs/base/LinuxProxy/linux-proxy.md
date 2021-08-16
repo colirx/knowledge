@@ -1,7 +1,7 @@
 ---
 title: Linux-如何进行科学上网
 categories:
- - backend
+ - base
 tags:
  - Linux
  - Proxy
