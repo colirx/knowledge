@@ -1,7 +1,7 @@
 ---
 title: Linux-基础篇
 categories:
-  - backend
+  - base
 tags:
   - Linux
 author: causes
