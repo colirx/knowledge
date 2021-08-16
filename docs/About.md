@@ -44,5 +44,5 @@ GitLab 提供代码的托管机制。
 :::
 
 :::danger
-主题使用的是 [vuepress-theme-reco](http://vuepress-theme-reco.recoluan.com/)，里面使用了 yarm formatter 作为配置，所以在写文章之前
+主题使用的是 [vuepress-theme-reco](http://vuepress-theme-reco.recoluan.com/)，里面使用了 yarn format 作为配置，所以在写文章之前需要首先看一下基本的书写规则，其实主要就是看一下如何在文章页面给文章填写题目、分类、标签。
 :::

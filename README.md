@@ -30,7 +30,7 @@
     - `package.json`：VuePress 的配置。
 
     如果之后知识库目录变动，会 at 所有人，并且更改 README.md 文件的说明。
-1. [知识库博客地址](https://team401.gitlab.io/knowledge/)，暂时没放目录，只能按照文件目录的方式手动进入。
+1. [知识库博客地址](https://team401.gitlab.io/knowledge/)。
 
 ## 如何让你的大脑就范
 
