@@ -26,7 +26,7 @@ K8s 是 Google 开发的，在经过生产环境十几年的考验之后，不�
 
 容器化部署，Docker 虽然也可以做，但是上限也就在大几百，一旦数量增多，Docker 也就有心无力了。K8s 支持自动化部署、大规模的升级/回滚操作，让部署的过程更加简洁方便。
 
-**K8s 功能**
+**K8s 功能**0
 
 - 自动装箱：自动完成，无需手动。
 - 自我修复：当主节点挂掉之后，副节点会自动启动，启动并且自检之后对外提供服务。
@@ -40,32 +40,91 @@ K8s 是 Google 开发的，在经过生产环境十几年的考验之后，不�
 
 **K8s 集群架构组件**
 
+Kubernetes 的本质其实是一组服务器集群，它可以在集群的每个节点上运行特定的程序，来对节点中的容器进行管理，目的是为了实现资源管理的自动化。
+
+一个 Kubernetes 集群中的节点主要分为两大类：控制节点（master），工作节点（node），每一个节点上都会安装不同的组件。
+
+![2021-08-19-20-05-24](./images/2021-08-19-20-05-24.png)
+
 - Master Node：主控节点（管理节点）。
-    - API Server：集群的统一入口，各个组件的协调者，以 RESTFul 的风格，交给 ETCD 进行存储。
+    - API Server：集群控制的统一入口，各个组件的协调者。提供认证、授权、API 注册、发现等机制。
     - Scheduler：节点调度，选择工作节点应用部署。
-    - Controller Manager：做集中控制管理，处理集群中的常规后台任务，一个资源对应一个 Controller。
+    - Controller Manager：负责维护集群的状态，比如程序部署安排，自动扩展，滚动更新等。
     - ETCD：存储系统，用于保存集群中的相关数据。
+
+    使用这样的方式干巴巴的，所以来举个例子作为说明。比如我想要在 Kubernetes 集群上运行一个服务 Nginx，那么：
+    
+    1. 首先跑到 API Server 这个入口中进入 Kubernetes 集群。
+    2. Scheduler 去计算，去判断这个活应该交给哪个工作节点来做，比如最后算出来应该交给 Node1，然后交给 API Server 这个信息。
+    3. Controller Manager 从 API Server 中得知，工作应该交给  Node1 来做，那么 Controller Manager 就去派活。
+    4. 派活之后管理者应该有一个单子，里面列着谁干了什么活，那么这个就交给 ETCD 存储。
+
 - Worker Node：工作节点（做事情的节点）。
     - Kubelet：Master Node 派到 Worker Node 的一个代表，管理当前节点的容器部分。
     - Kube-proxy：提供网络代理，利用它也可以实现负载均衡等操作。
     - Docker：节点上容器的各种操作。
 
-以后如果单单提到 Master 指的就是 Master Node，如果单单提到 Node 指的就是 Worker Node。
+    node 节点当然就是最后用来干活的节点，但是里面的组件也比较复杂，我们还是以刚才的例子来讲：
+    
+    1. 刚才说到，Controller Manager 将活派给了 Node1 节点，那么这个 Node1 节点应该有一个耳朵可以听，有能力可以进行任务分配，那么组件 Kubelet 就是干这个用的，Controller Manager 和 Kubelet 对接。
+    1. Kubelet 也不干活，Kubelet 会将工作分配给 Docker 来干活，Docker 内部会启动一个有一个的 Pod，交给这些 Pod 去执行任务，Nginx 就运行在这些 Pod 上。
+    1. Nginx 运行中，我们想要访问，就要通过 kube-proxy 来进行访问 Nginx。
+
+:::tip
+1. 以后如果单单提到 Master 指的就是 Master Node，如果单单提到 Node 指的就是 Worker Node。
+2. master 中，Scheduler 只负责计算任务应该交给谁，分配任务是 Controller Manager 来负责的。
+3. ETCD 只是 Kubernetes 集群自带的一个存储工具，完全可以自己配置为别的东西，比如 MySQL。
+:::
+
+:::tip
+1. Kubelet 就相当于工地的工头，它本身不干活，是一个小任务的管理者。
+1. 访问某一个具体的程序是通过 kube-proxy 来访问的，但是注意不要把它和 API Server 混淆了。
+   
+   API Server 是整个集群的控制节点，我们访问集群中的内容才通过 API Server 去访问。
+   
+   而 Kubelet 只是工作节点上运行的一个程序而已，本身我们没有访问集群中的组件，也没有进行集群控制，所以不需要使用 API Server。
+:::
+
+我们再以 Nginx 部署来说明 Kubernetes 各个组件的关系：
+
+1. 首先明确，一旦 Kubernetes 集群启动之后，master 和 node 的信息都会存储到 etcd 数据库中。
+1. 一个 Nginx 服务的安装请求首先会发送到 ApiServer上。
+1. Scheduler 会来决定是将服务安装到什么 node 节点上，然后将结果告知给 API Server。
+1. API Server 调用 Controller Manager，来安排工作给 node。
+1. Kubelet 在 node 节点上等着接活，这个时候 Controller Manager 将工作内容交给了 Kubelet。
+1. Kubelet 接受到了指令，会通知给 Docker，然后 Docker 会启动一个 Nginx 的 Pod。
+1. Nginx 服务运行在了 Pod 上，假如想要访问这个服务，那么必须要通过 kube-proxy 来对 Pod 产生访问的代理。
+
+
+:::tip
+Pod 是 Kubernetes 的最小操作单元，容器必须跑在 Pod 中。
+:::
+
 
 **K8s 核心概念**
 
-- Pod：
-    - 最小部署单元：Docker 可以部署容器，但是 K8s 的最小部署单元不是容器，而是一组容器的集合，也就是 Pod。
-    - 一组容器的集合。
-    - 一个 Pod 中是共享一组网络的。
-    - 一个 Pod 的声明周期是短暂的。
-- Controller：简单来讲就是用 Controller 创建出 Pod。
-    - 确保预期的 Pod 的副本数量。
-    - 无状态的应用部署：一个节点挂掉了，想要切换到另一个节点，随便使用。
-    - 有状态的应用部署：一个节点挂掉了，想要切换到另一个节点，需要满足条件才可以使用，比如依赖存储单元，网络 IP 等。
-    - 确保所有的 Worker Node 运行同一个 Pod。
-    - 一次性任务和定时任务。
-- Service：定义一组 Pod 的访问规则。
+- Master：集群控制节点，每一个集群至少需要一个 master 节点负责管理集群。
+- Node：工作负载节点，干活的节点。
+- Pod：Kubernetes 中的最小控制单元。
+- Controller：简单来讲就是用 Controller 对 Pod 管理，比如启动 Pod，关闭 Pod，伸缩 Pod 数量等。
+
+    Pod 是最小的控制单元，但是我们一般不会直接操控 Pod，而是通过 Pod 控制器（Controller）来实现对 Pod 的控制。
+    控制器在 Kubernetes 中不是一个概念，而是一类概念，控制器有很多种，每一种控制器都有它适合的场景。
+
+- Service：Pod 对外服务的统一入口，下面可以维护同一类的多个 Pod。
+- Label：用于对 Pod 分类，同一类的 Pod 拥有多个相同的 Label。
+- NameSpace：隔离 Pod 的运行环境。
+
+    在默认情况下，一个 Kubernetes 中的所有 pod 是可以相互访问的，但是我们可以通过配置 namespace 来隔绝 pod 之间的相互访问，或者做到某几个 pod 可以相互访问，其他的不行，等等。
+
+![2021-08-19-20-44-08](./images/2021-08-19-20-44-08.png)
+
+在上图中，四个紫色的 tomcat 是在 pod 上启动的，service 作为 pod 提供服务的统一入口，用这个来实现负载均衡的效果。
+
+在上图中可以看到，有两类标签：`app: tom`、`app: tomcat`，service 通过标签来将 pod 分类，维护了标签相同的 pod。
+
+
+
 
 ## 搭建 K8s 集群
 
@@ -105,7 +164,9 @@ kubernetes 有多种部署方式，目前的主流方式有 minikube、kubeadm�
 主机规划时注意，选择软件安装时，选择基础设施服务器。
 :::
 
-**主机环境初始化**
+### 主机环境初始化
+
+#### 主机安装
 
 1. 检查操作系统版本，CentOS 必须要在 7.5 上。
 
@@ -203,4 +264,3 @@ kubernetes 有多种部署方式，目前的主流方式有 minikube、kubeadm�
     ```
 
 1. 重启 Linux
-
