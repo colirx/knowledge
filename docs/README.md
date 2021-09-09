@@ -8,6 +8,6 @@ heroImageStyle: {
   borderRadius: '50%',
   boxShadow: '0 5px 18px rgba(0,0,0,0.2)'
 }
-tagline: 群策群力
+tagline: 多巴胺的绑架没有救赎
 permalink: /
 ---
