@@ -11,7 +11,8 @@ module.exports = {
       { text: '首页', link: '/', icon: 'reco-home' },
       { text: '关于', link: '/about', icon: 'reco-faq' },
     ],
-    subSidebar: 'auto',
+    // subSidebar: 'auto',
+    sidebar: 'auto',
     blogConfig: {
       category: {
         location: 2,
