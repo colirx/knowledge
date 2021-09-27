@@ -5,7 +5,6 @@ pages:
   script:
     - rm -rf public/*
     - rm -rf docs/.vuepress/dist
-    - yarn --frozen-lockfile
     - yarn docs:build --dest public
   artifacts:
     paths:
