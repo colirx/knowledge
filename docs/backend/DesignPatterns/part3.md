@@ -741,3 +741,411 @@ public class Client {
 桥接模式的好处就是在两个维度里面，随意扩展都不会影响另外的维度。
 :::  
 
+## 外观模式
+
+外观模式又叫做门面模式，具体的作用是为多个复杂系统提供一个统一的对外接口，让这些子系统可以更加容易被访问。
+
+外观模式（Facade）包含以下角色：
+
+- 外观（Facade）角色：为多个子系统对外提供一个统一接口。
+- 子系统（Sub System）角色：实现系统功能。
+
+**案例**
+
+通过智能音箱控制智能家电的开关，在这里外观角色就是智能音箱，子系统就是系统（灯、电视、……）。
+
+```java
+public class Light {
+
+  public void on() {
+    System.out.println("开灯");
+  }
+
+  public void off() {
+    System.out.println("关灯");
+  }
+}
+
+public class TV {
+  public void on() {
+    System.out.println("开电视");
+  }
+
+  public void off() {
+    System.out.println("关电视");
+  }
+}
+```
+
+```java
+/**
+ * 用户主要和该类对象交互
+ */
+public class SmartAppliancesFacade {
+
+  // 聚合电灯、电视机对象
+  private Light light;
+  private TV tv;
+
+  public SmartAppliancesFacade() {
+    light = new Light();
+    tv = new TV();
+  }
+
+  /**
+   * @param message 语音控制
+   */
+  public void say(String message) {
+    if (message.contains("打开")) {
+      on();
+    } else if (message.contains("关闭")) {
+      off();
+    } else {
+      System.out.println("我还听不懂");
+    }
+  }
+
+  /**
+   * 一键打开
+   */
+  private void on() {
+    light.on();
+    tv.on();
+  }
+
+  /**
+   * 一键关闭
+   */
+  private void off() {
+    light.off();
+    tv.off();
+  }
+}
+```
+
+```java
+public class Client {
+  public static void main(String[] args) {
+    SmartAppliancesFacade facade = new SmartAppliancesFacade();
+    facade.say("打开家电");
+    facade.say("关闭家电");
+  }
+}
+```
+
+**外观模式的特点和使用场景**
+
+特点：
+
+- 好处：
+    - 降低了子系统和客户端之间的耦合度，使子系统的变化不会影响其他的客户类。
+    - 对客户端屏蔽了子系统组件，减少了客户处理的对象数目，使子系统使用起来更容易。
+- 缺点：
+    - 不符合开闭原则，修改很麻烦。
+
+使用场景：
+
+- 分层结构系统构建的时候，使用外观模式定义子系统每层的入口可以简化子系统之间的依赖关系。
+- 当一个复杂系统的子系统很多的时候，外观模式可以为系统设计一个简单的接口供外界访问。
+- 当客户端与多个子系统之间存在很大联系时，引入外观模式可以将他们分离，从而干扰提高子系统的独立性和可移植性。
+
+---
+
+## 组合模式
+
+组合模式又叫做部分整体模式，是用于把一组相似的对象当作是一个单一的对象。组合模式依据树形结构来组合对象，用来表示整体和部分的层次关系。
+
+![](./images/2021-10-13-20-24-12.png)
+
+上面的这张图片是文件和文件夹之间的关系，其实就是我们数据结构中的树，那么组合模式其实也分为三种角色：
+
+- 抽象根节点（Component）：定义系统各个层次之间的共有方法和属性，可以预先定义一些默认行为和属性。
+- 树枝节点（Composite）：定义树枝节点的行为，存储各个子节点，组合树枝节点和叶子节点形成一个树形结构。
+- 叶子节点（Leaf）：叶子节点对象，其下再无分支。
+
+
+**案例**
+
+```java
+/**
+ * 不论是菜单还是菜单中的组件，都是节点，最终都属于抽象根节点
+ */
+public abstract class MenuComponent {
+
+  // 不管是菜单还是菜单项，都有名称
+  protected String name;
+  // 当前菜单节点的层级
+  protected Integer level;
+
+  /**
+   * 添加子菜单/子菜单项，但是不管是什么菜单节点，都属于抽象根节点
+   * 注意，只有菜单可以添加菜单/菜单项，菜单项是不可以添加的，所以我们默认抛出一个异常
+   * @param menuComponent
+   */
+  public void add(MenuComponent menuComponent) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * 移除子菜单/子菜单项，同样的，只有菜单可以移除子菜单/子菜单项，所以我们默认抛出一个异常
+   * @param menuComponent
+   */
+  public void remove(MenuComponent menuComponent) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * 获取子菜单/子菜单项，同样的，只有菜单可以得到子菜单/子菜单项，所以我们抛出一个异常
+   * @param index
+   * @return
+   */
+  public MenuComponent getChild(Integer index) {
+    throw new UnsupportedOperationException();
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  /**
+   * 打印当前节点名称，因为菜单节点和菜单项节点实现方式不同，所以给一个抽象根节点
+   */
+  public abstract void print();
+}
+```
+
+```java
+/**
+ * 菜单类，属于树枝节点
+ */
+public class Menu extends MenuComponent{
+
+  private List<MenuComponent> menuComponents = new ArrayList<>();
+
+  public Menu(String name, Integer level) {
+    this.name = name;
+    this.level = level;
+  }
+
+  @Override
+  public void add(MenuComponent menuComponent) {
+    menuComponents.add(menuComponent);
+  }
+
+  @Override
+  public void remove(MenuComponent menuComponent) {
+    menuComponents.remove(menuComponent);
+  }
+
+  @Override
+  public MenuComponent getChild(Integer index) {
+    return menuComponents.get(index);
+  }
+
+  @Override
+  public void print() {
+    for (Integer i = 0; i < level; i++) {
+      System.out.printf("\t");
+    }
+    // 首先打印菜单名称
+    System.out.println(name);
+    // 打印子菜单或者子菜单项名称
+    menuComponents.forEach(MenuComponent::print);
+  }
+}
+```
+
+```java
+/**
+ * 菜单项类，属于叶子节点
+ */
+public class MenuItem extends MenuComponent{
+
+  public MenuItem(String name, Integer level) {
+    this.name = name;
+    this.level = level;
+  }
+
+  @Override
+  public void print() {
+    for (Integer i = 0; i < level; i++) {
+      System.out.printf("\t");
+    }
+    System.out.println(name);
+  }
+}
+```
+
+```java
+public class Client {
+  public static void main(String[] args) {
+    MenuComponent menu = new Menu("系统管理",1);
+
+    MenuComponent menu1 = new Menu("菜单管理", 2);
+    menu1.add(new MenuItem("页面访问",3));
+    menu1.add(new MenuItem("展开菜单",3));
+    menu1.add(new MenuItem("编辑菜单",3));
+    menu1.add(new MenuItem("删除菜单",3));
+    menu1.add(new MenuItem("新增菜单",3));
+
+    MenuComponent menu2 = new Menu("权限管理", 2);
+    menu2.add(new MenuItem("页面访问",3));
+    menu2.add(new MenuItem("提交保存",3));
+
+    MenuComponent menu3 = new Menu("角色管理", 2);
+    menu3.add(new MenuItem("页面访问",3));
+    menu3.add(new MenuItem("页面访问新增角色",3));
+    menu3.add(new MenuItem("页面访问新增角色修改角色",3));
+
+    menu.add(menu1);
+    menu.add(menu2);
+    menu.add(menu3);
+
+    menu.print();
+
+  }
+}
+```
+
+**组合模式分类**
+
+在使用组合模式的时候，根据抽象构建类的定义形式，我们将其分为：
+
+- 透明组合模式：  
+    抽象根节点中声明了所有管理成员对象的方法，这样的好处是保证所有的构建类都有相同的接口，透明组合模式也是组合模式的标准形式。  
+    它的缺点是不够安全，因为叶子对象和容器对象本质上有区别，那么调用某些方法时，假如没有进行对应的错误处理，可能会导致出错。
+- 安全组合模式：  
+    抽象构件中不声明管理成员对象的方法，而是在树枝节点中声明并实现。他的缺点是不够透明，因此客户端不能完全针对抽象进行编程，必须要区别对待叶子和容器。
+
+
+**优点和使用场景**
+
+组合模式可以清晰的定义分层次的复杂对象，表示对象的全部或者部分层次，它让客户端忽略了层次的差异，方便对整个层次进行控制。  
+
+组合模式应用在树形结构很方便，比如文件目录和多级目录等。
+
+## 享元模式
+
+简单来说，享元模式就是复用。它通过复用对象来大幅减少需要创建的对象数量，避免大量相似的对象开销，从而提高系统资源的利用率。
+
+在生活中，共享单车就是一个例子，共享单车在不用的时候可以停放交给他人使用，并且从始至终都是一批共享单车，提高资源的利用率。
+
+**案例**
+
+![](./images/2021-10-16-11-39-24.png)
+
+在俄罗斯方块中，每一个方块都是一个实例对象，我们可以将相同种类的方块设置为享元对象，共享一个实例对象。
+
+```java
+/**
+ * 抽象享元角色
+ */
+public abstract class AbstractBox {
+  // 获取图形
+  public abstract String getShape();
+
+  // 显示图形和颜色
+  public void display(String color) {
+    System.out.printf("方块形状 %s 颜色 %s \n", getShape(), color);
+  }
+}
+```
+
+```java
+/**
+ * 具体享元角色
+ */
+public class IBox extends AbstractBox {
+  @Override
+  public String getShape() {
+    return "I";
+  }
+}
+
+/**
+ * 具体享元角色
+ */
+public class LBox extends AbstractBox {
+
+  @Override
+  public String getShape() {
+    return "L";
+  }
+}
+
+/**
+ * 具体享元角色
+ */
+public class OBox extends AbstractBox {
+  @Override
+  public String getShape() {
+    return "O";
+  }
+}
+```
+
+```java
+/**
+ * 享元工厂，设置为单例
+ */
+public class BoxFactory {
+
+  public static BoxFactory boxFactory = new BoxFactory();
+  private HashMap<String, AbstractBox> map;
+
+  private BoxFactory() {
+    map = new HashMap<>();
+    map.put("I", new IBox());
+    map.put("L", new LBox());
+    map.put("O", new OBox());
+  }
+
+  public static BoxFactory getInstance() {
+    return boxFactory;
+  }
+
+  public AbstractBox getShape(String name) {
+    return map.get(name);
+  }
+}
+```
+
+```java
+public class Client {
+  public static void main(String[] args) {
+    BoxFactory factory = BoxFactory.getInstance();
+
+    AbstractBox iBox = factory.getShape("I");
+    iBox.display("grey");
+
+    AbstractBox lBox = factory.getShape("L");
+    lBox.display("green");
+
+    AbstractBox oBox = factory.getShape("O");
+    oBox.display("red");
+  }
+}
+```
+
+**使用场景**
+
+享元（Flyweight）模式存在两种状态：
+
+- 内部状态，指的是不会随着环境的改变而改变可以共享的部分，比如上面的颜色。
+- 外部状态，指的是随着环境改变而改变的不可以被共享的部分，比如上面的图形。
+
+享元模式的实现要领就是区分应用中的这两种状态，并且将外部状态外部化（比如作为方法的形参作为传递）。
+
+
+享元模式存在以下角色：
+
+- 抽象享元角色：通常是一个接口或者是一个和抽象类，在抽象享元类中声明了具体享元公共的方法，这些方法可以向外界提供享元对象的内部数据，同时通过这些方法设置外部数据。
+- 具体享元角色：实现了抽象享元类，为内部状态提供了存储空间。通常可以结合单例模式来设计具体的享元类。
+- 非享元角色：不是所有的抽象享元类的子类都需要被共享，这些不被共享的子类可以设计成为非享元角色。
+- 享元工厂角色：负责创建和管理享元角色。
+
+使用场景：
+
+- 一个系统拥有大量的相同或者相似的对象，避免造成大内存的浪费。
+- 对象的大部分状态都可以进行外部化，可以将这些外部状态传入对象中。
+- 使用享元模式需要维护一个存储享元对象的享元池，这需要耗费一定的系统资源，所以应该在确认需要多次重复使用享元对象才值得使用享元模式。
