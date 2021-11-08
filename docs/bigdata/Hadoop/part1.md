@@ -1,5 +1,5 @@
 ---
-title: 01_Hadoop_起步
+title: 01-Hadoop-起步
 categories:
   - bigdata
 tags:
