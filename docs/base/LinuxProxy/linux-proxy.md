@@ -4,7 +4,6 @@ categories:
  - base
 tags:
  - Linux
- - Proxy
 author: causes
 ---
 
