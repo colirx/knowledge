@@ -122,7 +122,7 @@ public class Singleton {
 
   // 2. 首次使用类创建，其余返回已有的
   public static Singleton getInstance() {
-    if (instance != null) {
+    if (instance == null) {
       instance = new Singleton();
     }
     return instance;
