@@ -1,9 +1,9 @@
 ---
-title: Linux-实际操作篇
+title: Linux-02-实际操作篇
 categories:
-  - base
+- base
 tags:
-  - Linux
+- linux
 author: causes
 ---
 
@@ -453,7 +453,7 @@ Linux 是一种多用户的系统，我们这个系统中可以有多个普通�
     案例：`find /home -name hello.txt`，`find /home -user tom`，`find /home -size +200M`。
 
 - `localte`：快速定位文件的位置。
-    
+
     在使用 locate 命令之前必须先使用 updatedb 来创建数据库，然后才能使用 locate 命令。
 
     因为它的快速定位是基于数据库来进行查询的，所以才如此快。
@@ -570,7 +570,7 @@ Linux中的用户必须属于一个组，不能独立在组之外。假如不给
     我们来看，`A.txt` 的所在用户从 tom 改为了 `root`，但是第二个（用户组）没有发生改变，还是 tom。
 
 - `chgrp 组名 文件名`：组的更改。
-    
+
     ![](./images/image-20210416223554665.png)
 
     成功地将文件 A 的默认用户组改为了 monster。
@@ -995,7 +995,7 @@ Linux硬盘分为两种类型：`IDE` 硬盘、`SCSI` 硬盘，目前主流是 `
     我们说，假如文件的占用率已经达到 80% 及以上，那么就需要考虑空间清理或者扩容了。
 
 - 查询指定目录的磁盘占用情况：`du -h`。
-    
+
     默认为 `du-h`，查询当前目录，有以下参数：
 
     - `-s`：指定目录占用大小汇总。

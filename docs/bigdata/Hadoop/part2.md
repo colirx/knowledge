@@ -1,10 +1,10 @@
 ---
-title: 02-Hadoop-HDFS
+title: Hadoop-02-HDFS
 categories:
-  - bigdata
+- bigdata
 tags:
-  - bigdata
-  - hadoop
+- bigdata
+- hadoop
 author: causes
 ---
 
@@ -167,7 +167,7 @@ Shell 操作之前，需要首先启动 Hadoop 集群，注意至少要启动 HD
 1. 配置环境变量，指向 Hadoop 的配置。
 
     ![](./images/2021-11-11-09-22-14.png)
-  
+
 1. 双击 `winutils.exe`，假如出现错误 `由于找不到 MSVCR120.dll`，说明缺少微软运行库，可以去 3DM 或者果核剥壳一类的网站找一下。
 
 1. 重启系统。
@@ -387,11 +387,11 @@ public void descFile() throws IOException {
     // 最后更新时间
     long modificationTime = fileStatus.getModificationTime();
     System.out.printf("modificationTime %s%n", modificationTime);
-    
+
     // 副本数量
     short replication = fileStatus.getReplication();
     System.out.printf("replication %s%n", replication);
-    
+
     // 块大小
     long blockSize = fileStatus.getBlockSize();
     // blockSize 134217728，除两次之后将得到 128M
@@ -566,7 +566,7 @@ hdfs oev -p XML -i edits_0000000000000000134-0000000000000000308 -o /tmp/edit.xm
       </description>
     </property>
     ```
-        
+
 1. 2NN 按照操作次数来执行，2NN 每分钟去检查一次，当操作次数达到一百万时，2NN 合并一次。
 
     `hdfs-default.xml`

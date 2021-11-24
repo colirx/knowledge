@@ -1,10 +1,10 @@
 ---
-title: 01-Hadoop-起步
+title: Hadoop-01-起步
 categories:
-  - bigdata
+- bigdata
 tags:
-  - bigdata
-  - hadoop
+- bigdata
+- hadoop
 author: causes
 ---
 
@@ -87,7 +87,7 @@ Hadoop 架构：
 - MapReduce：任务计算使用。
 
     Hadoop MapReduce 的计算分为两个阶段：Map、Reduce，和分治算法有点相似。
-    
+
     Map 阶段并行，将数据进行计算处理，Reduce 阶段将 Map 结果进行汇总。
 
     ![](./images/2021-11-08-21-02-06.png)
@@ -111,7 +111,7 @@ Hadoop 架构：
         ![](./images/2021-11-08-21-16-11.png)
 
         ![](./images/2021-11-08-21-19-03.png)
-    
+
     1. Windows 设置，找到网络 --> 更改适配器选项 --> VMnet8 --> 属性 --> ipv4 --> DNS 和 IP 修改。
 
         ![](./images/2021-11-08-21-20-38.png)
@@ -126,11 +126,11 @@ Hadoop 架构：
 
         ```text
         #网络类型（通常是Ethemet）
-        TYPE="Ethernet"    
+        TYPE="Ethernet"
         PROXY_METHOD="none"
         BROWSER_ONLY="no"
         #IP的配置方法[none|static|bootp|dhcp]（引导时不使用协议|静态分配IP|BOOTP协议|DHCP协议）
-        BOOTPROTO="static"   
+        BOOTPROTO="static"
         DEFROUTE="yes"
         IPV4_FAILURE_FATAL="no"
         IPV6INIT="yes"
@@ -138,17 +138,17 @@ Hadoop 架构：
         IPV6_DEFROUTE="yes"
         IPV6_FAILURE_FATAL="no"
         IPV6_ADDR_GEN_MODE="stable-privacy"
-        NAME="ens33"   
+        NAME="ens33"
         #随机id
-        UUID="e83804c1-3257-4584-81bb-660665ac22f6"   
+        UUID="e83804c1-3257-4584-81bb-660665ac22f6"
         #接口名（设备,网卡）
-        DEVICE="ens33" 
-        #系统启动的时候网络接口是否有效（yes/no）  
-        ONBOOT="yes"   
+        DEVICE="ens33"
+        #系统启动的时候网络接口是否有效（yes/no）
+        ONBOOT="yes"
         #IP地址
-        IPADDR=192.168.10.100  
-        #网关  
-        GATEWAY=192.168.10.2      
+        IPADDR=192.168.10.100
+        #网关
+        GATEWAY=192.168.10.2
         #域名解析器
         DNS1=192.168.10.2
         ```
@@ -156,7 +156,7 @@ Hadoop 架构：
         文件编辑完成之后，执行命令 `systemctl restart network` 重启网络服务，假如出错则重启系统。
 
         设置之后，可以通过命令 `ifconfig` 查看当前网络。
-    
+
     1. 编辑文件 `/etc/hostname`，将主机名修改为 `hadoop100`。
     1. 编辑文件 `/etc/hosts`，在映射文件中添加以下内容：
 
@@ -188,7 +188,7 @@ Hadoop 架构：
         192.168.10.107 hadoop107
         192.168.10.108 hadoop108
         ```
-        
+
     1. 远程工具可以使用 `XShell && XFTP` 或者其他。
     1. 远程工具连接 hadoop100，安装 epel-release（一个软件仓库）：`yum install -y epel-release`。
     1. 关闭防火墙：
@@ -206,7 +206,7 @@ Hadoop 架构：
         useradd atguigu
         passwd atguigu
         ```
-    
+
     1. 为 atguigu 用户添加 root 权限，方便操作：
 
         - 修改 `/etc/sudoers` 文件。
@@ -235,13 +235,13 @@ Hadoop 架构：
         chown atguigu:atguigu /opt/module
         chown atguigu:atguigu /opt/software
         ```
-    
+
     1. 卸载虚拟机自带的 JDK：
 
         ```shell
         rpm -qa | grep -i java | xargs -n1 rpm -e --nodeps
         ```
-    
+
     1. 重启虚拟机。
 
 ### 克隆虚拟机
@@ -285,7 +285,7 @@ Hadoop 架构：
             ```text
             for i in /etc/profile.d/*.sh /etc/profile.d/sh.local ; do
                 if [ -r "$i" ]; then
-                    if [ "${-#*i}" != "$-" ]; then 
+                    if [ "${-#*i}" != "$-" ]; then
                         . "$i"
                     else
                         # 文件黑洞，写到 `/dev/null` 的内容会被立刻丢弃，无用的日志可以向里面放。
@@ -296,7 +296,7 @@ Hadoop 架构：
             ```
 
             它会遍历所有 `/etc/profile.d/*.sh`，并加入到环境变量。
-        
+
         - 使用 `java -version` 测试是否安装成功。
 1. Hadoop 安装：
 
@@ -463,10 +463,10 @@ scp：可以实现服务器之间的数据拷贝。
 
 1. 集群配置：
 
-    |            |  hadoop102  |  hadoop103  |  hadoop104  |
-    |    ----    |    -----    |    -----    |    -----    |
-    | HDFS | NameNode <br> DataNode | DataNode | SecondaryNameNode <br> DataNode |
-    | YARN | NodeManager  | ResourceManager <br> NodeManager | NodeManager |
+    |      | hadoop102              | hadoop103                        | hadoop104                       |
+    | ---- | ---------------------- | -------------------------------- | ------------------------------- |
+    | HDFS | NameNode <br> DataNode | DataNode                         | SecondaryNameNode <br> DataNode |
+    | YARN | NodeManager            | ResourceManager <br> NodeManager | NodeManager                     |
 
     注意：
 
@@ -602,7 +602,7 @@ scp：可以实现服务器之间的数据拷贝。
     1. 如果集群初次启动，则需要在 NameNode 节点格式化，这里就是 hadoop102 节点：`hdfs namenode -format`
 
         格式化 NameNode 会产生新的集群 ID，假如集群需要重新格式化 NameNode，一定要首先删除机器的 data 和 logs 目录，然后再进行格式化，否则集群 ID 不一致会导致集群找不到以往数据。
-    
+
     1. 启动 HDFS：`sbin/start-dfs.sh`
     1. 在 ResourceManager 节点，这里是 hadoop103 节点，启动 YARN：`sbin/start-yarn.sh`
     1. 在浏览器上输入 `http://hadoop102:9870` 查看是否启动了 HDFS。在 `http://hadoop103:8088` 查看 YARN 上的 Job 信息。
@@ -623,12 +623,12 @@ scp：可以实现服务器之间的数据拷贝。
             <value>hadoop102:19888</value>
         </property>
         ```
-    
+
     1. 分发配置：`xsync $HADOOP_HOME/etc/hadoop/mapred-site.xml`
     1. 启动历史服务器：`mapred --daemon start historyserver`
     1. 使用命令 `jps` 查看是否启动（jps 不生效是因为 Java 环境没配好）。
     1. 查看 JobHistory：`http://hadoop102:19888/jobhistory`
-        
+
         假如失败，则重启 HDFS 再次查看。
 
 1. 配置日志聚集功能：
@@ -644,8 +644,8 @@ scp：可以实现服务器之间的数据拷贝。
             <value>true</value>
         </property>
         <!-- 设置日志聚集服务器地址 -->
-        <property>  
-            <name>yarn.log.server.url</name>  
+        <property>
+            <name>yarn.log.server.url</name>
             <value>http://hadoop102:19888/jobhistory/logs</value>
         </property>
         <!-- 设置日志保留时间为7天 -->
@@ -654,7 +654,7 @@ scp：可以实现服务器之间的数据拷贝。
             <value>604800</value>
         </property>
         ```
-    
+
     1. 分发配置：`xsync $HADOOP_HOME/etc/hadoop/yarn-site.xml`
     1. 重启 NameNode、ResourceManager、HistoryServer：
 
@@ -664,7 +664,7 @@ scp：可以实现服务器之间的数据拷贝。
         sbin/start-yarn.sh
         mapred --daemon start historyserver
         ```
-    
+
     1. 执行 Word Count 程序，查看日志。
 
 **其他**
@@ -722,18 +722,18 @@ scp：可以实现服务器之间的数据拷贝。
     for host in hadoop102 hadoop103 hadoop104
     do
             echo =============== $host ===============
-            ssh $host jps 
+            ssh $host jps
     done
     ````
 
 - 常用端口号：
 
-|  端口名称  | Hadoop2.x | Hadoop3.x |
-|    --    |    --    |    --    |
-| NameNode 内部通信端口 | 8020/9000 | 8020/9000/9820 |
-| NameNode HTTP UI | 50070 | 9870 |
-| MapReduce 查看执行任务端口 | 8088 | 8088 |
-| 历史服务器通信端口 | 19888 | 19888 |
+| 端口名称                   | Hadoop2.x | Hadoop3.x      |
+| -------------------------- | --------- | -------------- |
+| NameNode 内部通信端口      | 8020/9000 | 8020/9000/9820 |
+| NameNode HTTP UI           | 50070     | 9870           |
+| MapReduce 查看执行任务端口 | 8088      | 8088           |
+| 历史服务器通信端口         | 19888     | 19888          |
 
 **文件上传和下载**
 
@@ -745,5 +745,3 @@ scp：可以实现服务器之间的数据拷贝。
     注意，这里的文件夹名称有些不一定相同（比如 `BP-1436128598-192.168.10.102-1610603650062`），但是大体位置是一样的。
 
 - 从 HDFS 下载到本地：`hadoop fs -get ${HDFS 文件路径} ${本地文件路径}`
-
-
