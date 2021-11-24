@@ -1,9 +1,9 @@
 ---
-title: Linux-如何进行科学上网
+title: Proxy-01-如何进行科学上网
 categories:
- - base
+- base
 tags:
- - Linux
+- proxy
 author: causes
 ---
 

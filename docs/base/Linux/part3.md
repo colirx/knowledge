@@ -1,9 +1,9 @@
 ---
-title: Linux-安装配置
+title: Linux-03-安装配置
 categories:
-  - base
+- base
 tags:
-  - Linux
+- linux
 author: causes
 ---
 
@@ -40,7 +40,7 @@ rpm 用于互联网下载包的打包和安装工具，它包含在某些 Linux 
 - 卸载 RPM 包
     - 基本语法：`rpm -e 软件包名称`，比如：`rpm -e firefox` 。
 
-    假如其他软件包依赖于这次要卸载的软件包，它可能会出现错误信息。  
+    假如其他软件包依赖于这次要卸载的软件包，它可能会出现错误信息。
     假如要强制删除此软件包，使用：`rpm -e --nodeps 软件包名`。
 
 - 安装 rpm 包：
@@ -126,7 +126,7 @@ yum，一个 Shell 前端软件包管理器，基于 RPM 包管理，能够自�
 1. 可以重设 root 密码，对于个人开发环境要设置简单密码即可。
 
     可以运行 `set global validate_password_policy=0` 提示密码设置策略。
-    
+
     `validate_password_policy`默认为 1。
 
     MySQL 密码复杂度有三种：

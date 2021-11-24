@@ -1,9 +1,9 @@
 ---
-title: Git-常用指令
+title: Git-01-常用指令
 categories:
-  - base
+- base
 tags:
-  - Git
+- git
 author: causes
 sidebarDepth: 4
 ---

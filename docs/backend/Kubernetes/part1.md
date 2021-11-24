@@ -1,9 +1,9 @@
 ---
-title: Kubernetes-环境搭建
+title: Kubernetes-02-环境搭建
 categories:
 - backend
 tags:
-- k8s 
+- k8s
 author: causes
 ---
 
@@ -53,7 +53,7 @@ Kubernetes 的本质其实是一组服务器集群，它可以在集群的每个
     - ETCD：存储系统，用于保存集群中的相关数据。
 
     使用这样的方式干巴巴的，所以来举个例子作为说明。比如我想要在 Kubernetes 集群上运行一个服务 Nginx，那么：
-    
+
     1. 首先跑到 API Server 这个入口中进入 Kubernetes 集群。
     2. Scheduler 去计算，去判断这个活应该交给哪个工作节点来做，比如最后算出来应该交给 Node1，然后交给 API Server 这个信息。
     3. Controller Manager 从 API Server 中得知，工作应该交给  Node1 来做，那么 Controller Manager 就去派活。
@@ -65,7 +65,7 @@ Kubernetes 的本质其实是一组服务器集群，它可以在集群的每个
     - Docker：节点上容器的各种操作。
 
     node 节点当然就是最后用来干活的节点，但是里面的组件也比较复杂，我们还是以刚才的例子来讲：
-    
+
     1. 刚才说到，Controller Manager 将活派给了 Node1 节点，那么这个 Node1 节点应该有一个耳朵可以听，有能力可以进行任务分配，那么组件 Kubelet 就是干这个用的，Controller Manager 和 Kubelet 对接。
     1. Kubelet 也不干活，Kubelet 会将工作分配给 Docker 来干活，Docker 内部会启动一个有一个的 Pod，交给这些 Pod 去执行任务，Nginx 就运行在这些 Pod 上。
     1. Nginx 运行中，我们想要访问，就要通过 kube-proxy 来进行访问 Nginx。
@@ -79,9 +79,9 @@ Kubernetes 的本质其实是一组服务器集群，它可以在集群的每个
 :::tip
 1. Kubelet 就相当于工地的工头，它本身不干活，是一个小任务的管理者。
 1. 访问某一个具体的程序是通过 kube-proxy 来访问的，但是注意不要把它和 API Server 混淆了。
-   
+
    API Server 是整个集群的控制节点，我们访问集群中的内容才通过 API Server 去访问。
-   
+
    而 Kubelet 只是工作节点上运行的一个程序而已，本身我们没有访问集群中的组件，也没有进行集群控制，所以不需要使用 API Server。
 :::
 
@@ -207,7 +207,7 @@ kubernetes 有多种部署方式，目前的主流方式有 minikube、kubeadm�
     ```
 
 1. 禁用 swap 分区：
-    
+
     swap 分区在 Linux 指的是虚拟内存分区，在物理内存满了之后，用磁盘空间当内存用。
 
     但是 swap 分区会对系统设备产生极其负面的影响，所以 Kubernetes 要求每一个节点都要禁用 swap 设备，假如实在关不掉，在启动集群的时候就要明确指定参数配置。

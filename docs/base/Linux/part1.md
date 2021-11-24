@@ -1,9 +1,9 @@
 ---
-title: Linux-基础篇
+title: Linux-01-基础篇
 categories:
-  - base
+- base
 tags:
-  - Linux
+- linux
 author: causes
 ---
 

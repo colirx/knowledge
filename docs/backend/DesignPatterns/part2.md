@@ -1,9 +1,9 @@
 ---
-title: 设计模式-创建者模式
+title: 设计模式-02-创建者模式
 categories:
-  - backend
+- backend
 tags:
-  - DesignPatterns
+- designPatterns
 author: causes
 ---
 
@@ -161,7 +161,7 @@ public class Singleton {
 
   private Singleton() {
   }
-  
+
   // 多线程模式下可能会出现空指针问题，原因是 JVM 在实例化对象的时候可能会被 CPU 进行指令重排操作（有兴趣可以去看并发编程），所以使用 volatile 能保证可见性和有序性。
   private static volatile Singleton instance;
 
@@ -352,18 +352,18 @@ public class SimpleCoffeeFactory {
 
 上面的类图描述的就是工厂方法模式中的角色关系：
 
-- 右边的部分：  
+- 右边的部分：
 
     首先就是 Coffee 接口，其中具体的实现类有 AmericanCoffee，LatteCoffee。
 
-- 中间的部分：  
-    
-    中间的 Coffee Store 是咖啡店，拥有点咖啡的功能。  
+- 中间的部分：
+
+    中间的 Coffee Store 是咖啡店，拥有点咖啡的功能。
     它依赖于 Coffee，也就是依赖于抽象不依赖于具体实现，符合我们之前说的依赖倒转原则。
 
-- 左边的部分：  
-    
-    首先有一个 CoffeeFactory 的接口，拥有 createCoffee 方法。  
+- 左边的部分：
+
+    首先有一个 CoffeeFactory 的接口，拥有 createCoffee 方法。
     具体的实现类有 AmericanCoffeeFactory（生产美式咖啡），LatteCoffeeFactory（生产拿铁咖啡）。
 
 ```java
@@ -776,7 +776,7 @@ public class Client {
 - 部件的构造就是形成左边部分的组件内容。
 - 部件的装配就是左边组装成右边电脑的过程。
 
-对于用户来说，他不需要去关心左边的组件是怎么样的，他只关心右边电脑的成品，也就是说只需要知道右边产品的类型，就可以通过建造者模式将成品组装起来。  
+对于用户来说，他不需要去关心左边的组件是怎么样的，他只关心右边电脑的成品，也就是说只需要知道右边产品的类型，就可以通过建造者模式将成品组装起来。
 
 由于实现了构建和装配的解耦合，所以不同的组件，即使使用相同的构建过程最终产生的产品也不相同。同样的，即使使用相同的组件，构建过程相同最终的产品也有可能不同（这一点在上图没有体现，不过确实存在这种情况）。
 
@@ -956,12 +956,12 @@ public class Client {
 @AllArgsConstructor
 @NoArgsConstructor
 public class Phone {
-  
+
   private String cpu;
   private String screen;
   private String memory;
   private String mainboard;
-  
+
 }
 ```
 
