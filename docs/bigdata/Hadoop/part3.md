@@ -569,15 +569,15 @@ public class HashPartitioner<K, V> extends Partitioner<K, V> {
     ```
 1. 在 Job 驱动中，设置自定义的 partitioner
 
-```java
-job.setPartitionerClass(CustomPartitioner.class);
-```
+    ```java
+    job.setPartitionerClass(CustomPartitioner.class);
+    ```
 
 1. 根据 partitioner 设置对应的 reduceTask
 
-```java
-job.setNumReduceTasks(num);
-```
+    ```java
+    job.setNumReduceTasks(num);
+    ```
 
 之前在讲解 MapTask 数量的影响因素时，曾经说到文件的切片数量是最终 MapTask 的个数。
 
