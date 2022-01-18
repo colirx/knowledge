@@ -1,5 +1,5 @@
 module.exports = {
-  base: '/knowledge/',
+  base: '/',
   title: '知识库',
   theme: 'reco',
   markdown: {
@@ -7,6 +7,9 @@ module.exports = {
   },
   themeConfig: {
     type: 'blog',
+    record: '鲁ICP备20021989号-2',
+    recordLink: 'https://beian.miit.gov.cn/#/Integrated/index',
+    startYear: '2021',
     nav: [
       { text: '首页', link: '/', icon: 'reco-home' },
       { text: '关于', link: '/about', icon: 'reco-faq' },
@@ -27,4 +30,3 @@ module.exports = {
     repo: 'https://gitlab.com/team401/knowledge'
   }
 }
-
