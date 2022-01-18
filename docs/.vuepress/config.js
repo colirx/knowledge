@@ -1,5 +1,5 @@
 module.exports = {
-  base: '/',
+  base: '/knowledge/',
   title: '知识库',
   theme: 'reco',
   markdown: {
