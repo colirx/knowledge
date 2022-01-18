@@ -38,8 +38,8 @@
 
     之后进入到 `http://localhost:8080/knowledge/` 查看页面，和远程的没有任何区别。
 
-4. [知识库博客地址](https://team401.gitlab.io/knowledge/)。
-5. 其他[注意事项](https://team401.gitlab.io/knowledge/about)。
+4. [知识库博客地址](https://redmaple.ltd/)。
+5. 其他[注意事项](https://redmaple.ltd/about)。
 ## 如何让你的大脑就范
 
 **慢一点**
