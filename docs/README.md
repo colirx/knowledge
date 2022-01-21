@@ -1,5 +1,5 @@
 ---
-home: true
+blog: true
 heroText: 团队博客
 heroImage: /team.jpg
 heroImageStyle: {
@@ -8,6 +8,5 @@ heroImageStyle: {
   borderRadius: '50%',
   boxShadow: '0 5px 18px rgba(0,0,0,0.2)'
 }
-tagline: 多巴胺的绑架没有救赎
 permalink: /
 ---
