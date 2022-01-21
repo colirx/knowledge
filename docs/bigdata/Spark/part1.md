@@ -516,7 +516,7 @@ RDD 根据数据处理方式的不同，可以分为 Value 类型、双 Value �
     ```
 
 - leftOuterJoin：类似 SQL 的左外链接。
-- cogroup：两种 (K, V) 和 (K, W) 类型的 RDD 调用形成：(K, (Iterable<V>, (Iterable<W>)))
+- cogroup：两种 (K, V) 和 (K, W) 类型的 RDD 调用形成：`(K, (Iterable<V>, (Iterable<W>)))`
 
     ```scala
     val sparkConf = new SparkConf().setMaster("local[*]").setAppName("spark")

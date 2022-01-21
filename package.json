@@ -6,7 +6,8 @@
   "author": "causes <2592716753@qq.com>",
   "license": "MIT",
   "devDependencies": {
-    "vuepress": "^1.8.2"
+    "vuepress": "^1.8.2",
+    "vuepress-theme-hope": "^1.25.0"
   },
   "scripts": {
     "docs:dev": "vuepress dev docs",
