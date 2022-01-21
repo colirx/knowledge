@@ -5,6 +5,7 @@ pages:
   script:
     - rm -rf public/*
     - rm -rf docs/.vuepress/dist
+    - yarn install
     - yarn docs:build --dest public
   artifacts:
     paths:
