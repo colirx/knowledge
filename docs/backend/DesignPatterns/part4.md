@@ -826,3 +826,262 @@ public class Client {
 - 增加系统类和对象的个数。
 - 状态模式比较复杂，使用不当会导致程序混乱。
 - 对开闭原则支持不太好。
+
+## 观察者模式
+
+观察者模式也叫发布-订阅模式，它可以让多个观察者对象同时监听某一个主题对象，当这个主题对象发生变化时，观察者会收到消息自动更新。
+
+**结构**
+
+- Subject：抽象主题角色，将所有观察者放到一个集合中，每隔主题都可以有任意数量的观察者。抽象主题提供一个接口，可以增加或者删除观察者对象。
+- ConcreteSubject：具体主题，将所有有关状态存入具体观察者对象，在具体主题内部改变时，给所有注册过的观察者发送通知。
+- Observer：抽象观察者，是观察者的抽象类，定义了一个更新接口，让主题更改时通知自己。
+- ConcreteObserver：具体观察者。
+
+**案例**
+
+微信公众号：在使用微信公众号时，当公众号进行了更新之后，关注此公众号的用户都会受到消息。
+
+```java
+/**
+ * 抽象主题角色类
+ */
+public interface Subject {
+
+  // 添加订阅者（观察者）
+  void attach(Observer observer);
+
+  // 删除订阅者
+  void detach(Observer observer);
+
+  // 通知订阅者
+  void notify(String message);
+}
+```
+
+```java
+/**
+ * 具体主题角色类
+ */
+public class SubscriptionSubject implements Subject {
+
+  // 定义一个集合，存储多个观察者对象
+  private List<Observer> userList = new ArrayList<>();
+
+  @Override
+  public void attach(Observer observer) {
+    userList.add(observer);
+  }
+
+  @Override
+  public void detach(Observer observer) {
+    userList.remove(observer);
+  }
+
+  @Override
+  public void notify(String message) {
+    userList.forEach(user -> user.update(message));
+  }
+}
+```
+
+```java
+/**
+ * 抽象观察者类
+ */
+public interface Observer {
+
+  // 更新
+  void update(String message);
+}
+```
+
+```java
+/**
+ * 具体观察者
+ */
+public class ObserverUser implements Observer {
+
+  private String name;
+
+  public ObserverUser(String name) {
+    this.name = name;
+  }
+
+  @Override
+  public void update(String message) {
+    System.out.println(String.format("%s - %s", name, message));
+  }
+}
+```
+
+```java
+public class Client {
+  public static void main(String[] args) {
+    // 创建公众号
+    SubscriptionSubject subject = new SubscriptionSubject();
+
+    // 订阅公众号
+    subject.attach(new ObserverUser("zhangsan"));
+    subject.attach(new ObserverUser("lisi"));
+
+    // 公众号更新
+    subject.notify("更新");
+  }
+}
+```
+
+**优缺点**
+
+- 优点：降低了耦合，可以实现广播机制。
+- 缺点：假如观察者非常多，那么可能会非常耗时。如果被观察者有循环依赖，那么被观察者发送通知会让观察者循环调用，最终系统崩溃。
+
+## 中介者模式
+
+一般来说，人与人之间的关系是十分复杂的，是一种网状结构，但是引入中介者就可以将关系变动为星型关系。
+
+![](./images/2022-01-08-09-11-39.png)
+
+这样就减少了系统的耦合，一个良好的系统不可能在自己的类中维护与其他类之间的关系，而是通过一个中介来进行关系的关联。
+
+**结构**
+
+- 抽象中介者（Mediator）：中介者的接口，提供了对象注册和转发对象信息的抽象方法。
+- 具体中介者（Concrete Mediator）：实现中介者接口，定义一个 List 来管理对象，协调各个角色之间的交互关系。
+- 抽象对象（Colleague）：定义对象的接口，保存中介者，提供对象交互的抽象方法，实现所有相互影响的对象类的公共功能。
+- 具体对象（Concrete Colleague）：抽象类的实现者，当需要与其他对象交互时，中介者负责后续的交互。
+
+**案例**
+
+使用房屋中介来作为案例，房屋中介充当中介者，房租和租房客为对象。
+
+
+```java
+/**
+ * 抽象中介类
+ */
+@SuppressWarnings("unused")
+public interface Mediator {
+
+  void constact(String message, Person person);
+}
+```
+
+```java
+/**
+ * 抽象对象类
+ */
+@AllArgsConstructor
+public abstract class Person {
+
+  protected String name;
+  protected Mediator mediator;
+}
+```
+
+```java
+/**
+ * 具体的对象类
+ */
+public class Tenant extends Person {
+
+  public Tenant(String name, Mediator mediator) {
+    super(name, mediator);
+  }
+
+  /**
+   * 与中介联系的功能
+   */
+  public void constact(String message) {
+    mediator.constact(message, this);
+  }
+
+  /**
+   * 租房者
+   */
+  public void getMessage(String message) {
+    System.out.println(String.format("租房者 %s 获取到的信息是 %s", name, message));
+  }
+
+}
+```
+
+```java
+/**
+ * 具体的对象类
+ */
+public class HouseOwner extends Person {
+
+  public HouseOwner(String name, Mediator mediator) {
+    super(name, mediator);
+  }
+
+  /**
+   * 与中介联系的功能
+   */
+  public void constact(String message) {
+    mediator.constact(message, this);
+  }
+
+  /**
+   * 房主
+   */
+  public void getMessage(String message) {
+    System.out.println(String.format("房主 %s 获取到的信息是 %s", name, message));
+  }
+}
+```
+
+```java
+/**
+ * 具体的中介者
+ */
+@Data
+public class MediatorStructure implements Mediator {
+
+  // 聚合具体的房主和租房者对象
+  private HouseOwner houseOwner;
+  private Tenant tenant;
+
+  @Override
+  public void constact(String message, Person person) {
+    if (person == houseOwner) {
+      tenant.getMessage(message);
+    } else if (person == tenant) {
+      houseOwner.getMessage(message);
+    }
+  }
+}
+```
+
+```java
+public class Client {
+  public static void main(String[] args) {
+    // 创建中介者
+    MediatorStructure mediator = new MediatorStructure();
+    // 租客
+    Tenant tenant = new Tenant("李四", mediator);
+    // 房主
+    HouseOwner houseOwner = new HouseOwner("张三", mediator);
+
+    // 中介者要知道具体的房主和租客
+    mediator.setTenant(tenant);
+    mediator.setHouseOwner(houseOwner);
+
+    // 房客进行沟通
+    tenant.constact("房客租房");
+    // 房主沟通
+    houseOwner.constact("可以");
+  }
+}
+```
+
+**优缺点**
+
+- 优点：松散耦合，集中控制交互，一对多转变为一对一关联。
+- 缺点：同事类太多时，中介者的职责会很大，以至于系统难以维护。
+
+**使用场景**
+
+系统中对象存在复杂的引用关系时，当想创建一个运行于多个类之间的对象，但是又不想生成新的子类时。
+

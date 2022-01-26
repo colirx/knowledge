@@ -473,13 +473,6 @@ public class Client {
 我们之前举的例子都是咖啡类，现在我们仍然以咖啡举例，不过咖啡店的业务现在发生了改变，除了生产咖啡还要生产甜点。
 现在有：咖啡（美式咖啡、拿铁咖啡），甜点（提拉米苏，抹茶慕斯）
 
-$$\begin{array}{c|lll}
-&{咖啡}&{甜点}\\
-\hline
-{意大利风味}&{拿铁咖啡}&{提拉米苏}\\
-{美式风味}&{美式咖啡}&{抹茶慕斯}\\
-\end{array}$$
-
 ```java
 public abstract class Coffee {
   abstract String getName();
