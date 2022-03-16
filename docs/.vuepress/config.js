@@ -22,5 +22,6 @@ module.exports = {
       content: '<a href="https://beian.miit.gov.cn/#/Integrated/index">鲁ICP备20021989号-2</a>',
     },
     repo: 'https://gitlab.com/team401/knowledge'
-  }
+  },
+  plugins: ['flexsearch'],
 }
