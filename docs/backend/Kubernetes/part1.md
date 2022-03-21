@@ -1,5 +1,5 @@
 ---
-title: Kubernetes-02-环境搭建
+title: Kubernetes-01-环境搭建
 categories:
 - backend
 tags:
