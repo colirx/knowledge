@@ -1,8 +1,8 @@
 ---
 title: 数据结构与算法-01-概述
-category:
+categories:
 - base
-tag:
+tags:
 - algorithms
 author: causes
 ---

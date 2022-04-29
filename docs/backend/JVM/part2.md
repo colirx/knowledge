@@ -1,8 +1,8 @@
 ---
 title: JVM-02-类加载子系统
-category:
+categories:
 - backend
-tag:
+tags:
 - jvm
 author: causes
 ---

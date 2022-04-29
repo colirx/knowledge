@@ -1,8 +1,8 @@
 ---
 title: Zookeeper
-category:
+categories:
 - bigdata
-tag:
+tags:
 - zookeeper
 author: causes
 ---

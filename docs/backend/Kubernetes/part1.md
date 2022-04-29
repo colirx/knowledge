@@ -1,8 +1,8 @@
 ---
 title: Kubernetes-01-环境搭建
-category:
+categories:
 - backend
-tag:
+tags:
 - k8s
 author: causes
 ---

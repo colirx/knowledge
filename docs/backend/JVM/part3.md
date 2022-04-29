@@ -1,8 +1,8 @@
 ---
 title: JVM-03-运行时数据区
-category:
+categories:
 - backend
-tag:
+tags:
 - jvm
 author: causes
 ---
