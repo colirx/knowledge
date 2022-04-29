@@ -1,8 +1,8 @@
 ---
 title: Kafka-02-架构和 API
-categories:
+category:
 - bigdata
-tags:
+tag:
 - kafka
 author: causes
 ---

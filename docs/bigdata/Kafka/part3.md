@@ -1,8 +1,8 @@
 ---
 title: Kafka-03-组件对接
-categories:
+category:
 - bigdata
-tags:
+tag:
 - kafka
 author: causes
 ---

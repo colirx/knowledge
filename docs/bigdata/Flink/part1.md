@@ -1,8 +1,8 @@
 ---
 title: Flink-01-基础
-categories:
+category:
 - bigdata
-tags:
+tag:
 - flink
 author: causes
 ---

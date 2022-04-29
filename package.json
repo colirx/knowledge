@@ -1,20 +1,16 @@
 {
   "name": "knowledge",
   "version": "1.0.0",
-  "main": "index.js",
-  "repository": "https://gitlab.com/team401/knowledge.git",
-  "author": "causes <2592716753@qq.com>",
+  "description": "teams knowledge",
   "license": "MIT",
-  "devDependencies": {
-    "vuepress": "^1.8.2",
-    "vuepress-plugin-flexsearch": "^0.3.0",
-    "vuepress-theme-hope": "^1.25.0"
-  },
   "scripts": {
+    "docs:build": "vuepress build docs",
+    "docs:clean-dev": "vuepress dev docs --no-cache",
     "docs:dev": "vuepress dev docs",
-    "docs:build": "vuepress build docs"
+    "docs:eject-theme": "vuepress eject-hope docs"
   },
-  "dependencies": {
-    "vuepress-theme-reco": "^1.6.6"
+  "devDependencies": {
+    "vuepress": "^1.9.7",
+    "vuepress-theme-hope": "^1.28.5"
   }
 }

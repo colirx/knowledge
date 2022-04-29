@@ -1,8 +1,8 @@
 ---
 title: Spark-01-SparkCore
-categories:
+category:
   - bigdata
-tags:
+tag:
   - spark
 author: causes
 ---

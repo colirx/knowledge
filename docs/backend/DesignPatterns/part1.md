@@ -1,8 +1,8 @@
 ---
 title: 设计模式-01-介绍
-categories:
+category:
 - backend
-tags:
+tag:
 - designPatterns
 author: causes
 ---

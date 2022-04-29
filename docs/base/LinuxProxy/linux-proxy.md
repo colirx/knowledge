@@ -1,8 +1,8 @@
 ---
 title: Proxy-01-如何进行科学上网
-categories:
+category:
 - base
-tags:
+tag:
 - proxy
 author: causes
 ---
