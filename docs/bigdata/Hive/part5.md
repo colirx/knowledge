@@ -1,8 +1,8 @@
 ---
 title: Hive-05-函数
-category:
+categories:
 - bigdata
-tag:
+tags:
 - hive
 author: causes
 ---

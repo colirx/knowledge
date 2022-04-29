@@ -1,8 +1,8 @@
 ---
 title: Flume
-category:
+categories:
 - bigdata
-tag:
+tags:
 - flume
 author: causes
 ---

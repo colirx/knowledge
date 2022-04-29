@@ -1,8 +1,8 @@
 ---
 title: 设计模式-04-行为型模式
-category:
+categories:
 - backend
-tag:
+tags:
 - designPatterns
 author: causes
 ---
