@@ -1,8 +1,8 @@
 ---
 title: Hive-02-DDL
-categories:
+category:
 - bigdata
-tags:
+tag:
 - hive
 author: causes
 ---

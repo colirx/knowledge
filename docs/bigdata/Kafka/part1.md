@@ -1,8 +1,8 @@
 ---
 title: Kafka-01-起步
-categories:
+category:
 - bigdata
-tags:
+tag:
 - kafka
 author: causes
 ---

@@ -1,8 +1,8 @@
 ---
 title: JVM-01-概述
-categories:
+category:
 - backend
-tags:
+tag:
 - jvm
 author: causes
 ---

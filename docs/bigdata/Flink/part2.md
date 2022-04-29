@@ -1,8 +1,8 @@
 ---
 title: Flink-02-进阶
-categories:
+category:
 - bigdata
-tags:
+tag:
 - flink
 author: causes
 ---

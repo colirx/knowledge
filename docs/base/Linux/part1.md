@@ -1,8 +1,8 @@
 ---
 title: Linux-01-基础篇
-categories:
+category:
 - base
-tags:
+tag:
 - linux
 author: causes
 ---
