@@ -1,7 +1,7 @@
 pages:
   cache:
     paths:
-    - node_modules/
+      - node_modules/
   script:
     - rm -rf public/*
     - rm -rf docs/.vuepress/dist
@@ -9,6 +9,7 @@ pages:
     - yarn docs:build --dest public
   artifacts:
     paths:
-    - public
+      - public
   only:
-  - master
+    - master
+    - staging
