@@ -1,5 +1,5 @@
 ---
-title: Proxy-01-如何进行科学上网
+title: Proxy
 categories:
 - base
 tags:
@@ -38,3 +38,7 @@ Linux 下的安装下载 AppImage 即可，AppImage 是各种发行版通用的�
 使用插件时，只需要将对应的文件放到 `qv2ray` 目录下的 `plugins` 文件夹下，然后重启，就可以在插件目录上看到对应的插件。
 
 浏览器代理（如 `Google Chrome`），在`Ubuntu` 上可以在 `google-chrome.desktop` 中添加 `--proxy-server="socks5://127.0.0.1:12333"` 代理选项。
+
+---
+
+[ssrmu](https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/ssrmu.sh)
