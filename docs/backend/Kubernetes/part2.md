@@ -363,3 +363,11 @@ k8s 设计了 service 来解决以上的两个问题。service 可以看成是�
         run: nginx
       type: ClusterIP
     ```
+
+**不同类型的 port**
+
+- nodePort: 外部访问 k8s 集群中 Service 的端口。
+- port: k8s 集群内部访问 service 的端口。
+- targetPort: pod 对外的端口，nodePort 和 port 的请求将会通过 kube-proxy 访问 targetPort，最终进入容器。
+- containerPort: pod 对内的端口，targetPort 会映射到 containerPort。
+
