@@ -749,7 +749,7 @@ spec:
     spec:
       # 重启策略只可用 Never/OnFailure
       # OnFailure 指定后，会在 pod 故障后重启容器而不是创建 pod，failed 次数不变
-      # Never 指定后，会在 pod 故障后创建新 pod，且故障 pod 不会消失，failed 次数 +1 
+      # Never 指定后，会在 pod 故障后创建新 pod，且故障 pod 不会消失，failed 次数 +1
       restartPolicy: Never
       containers:
         - name: counter
@@ -785,4 +785,56 @@ spec:
                 - -c
                 - date; echo Hello from the Kubernetes cluster
           restartPolicy: OnFailure
+```
+
+### StatefulSet
+
+无状态应用，无头服务（HeadLinessService），可以部署在任意 Node 上，可以任意进行伸缩。
+
+在 StatefulSet 中，每个 pod 的名称要求是必须有序的，可以给每一个 pod 一个唯一的标识，每个 pod 不能被随意取代，对 pod 的要求是持久、稳定、有效。
+
+所以一般来说，StatefulSet 经常用来部署 Zookeeper、MySQL 集群等。
+
+案例：
+
+```yml
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-headliness
+  namespace: dev
+spec:
+  selector:
+    app: nginx-pod
+  # 将 clusterIP 设置为 None，即可创建 headliness Service
+  clusterIP: None
+  type: ClusterIP
+  ports:
+    # Service的端口
+    - port: 80
+      # Pod的端口
+      targetPort: 80
+---
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: pc-statefulset
+  namespace: dev
+spec:
+  replicas: 3
+  serviceName: service-headliness
+  selector:
+    matchLabels:
+      app: nginx-pod
+  template:
+    metadata:
+      labels:
+        app: nginx-pod
+    spec:
+      containers:
+        - name: nginx
+          image: nginx
+          ports:
+            - containerPort: 80
 ```
