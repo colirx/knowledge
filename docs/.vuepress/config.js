@@ -23,5 +23,15 @@ module.exports = {
     },
     repo: 'https://gitlab.com/team401/knowledge'
   },
-  plugins: ['flexsearch'],
+  plugins: [
+    ['flexsearch'],
+    [
+      'rss-feed',
+      {
+        username: 'causes',
+        hostname: 'https://causes.cloud',
+        selector: '.content__post',
+      }
+    ]
+  ],
 }
