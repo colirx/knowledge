@@ -23,5 +23,14 @@ module.exports = {
     },
     repo: 'https://gitlab.com/team401/knowledge'
   },
-  plugins: ['flexsearch'],
+  plugins: [
+    ['flexsearch'], 
+    [
+      '@vuepress-reco/vuepress-plugin-rss',
+      {
+        site_url: 'https://causes.cloud',
+        copyright: "causes"
+      }
+    ]
+  ],
 }
