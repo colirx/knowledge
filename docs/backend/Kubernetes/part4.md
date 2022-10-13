@@ -194,12 +194,88 @@ LB 是每个 service 都需要一个 LB，麻烦且浪费，并且需要 k8s 之
 
 ### 环境搭建
 
-:::tip
-TODO
-:::
+环境搭建，其实就是安装 ingress controller，我们使用基于 nginx 的 ingress controller。
+
+1. `mkdir ingress && cd ingress`
+1. `wget https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.30.0/deploy/static/mandatory.yaml`
+1. `wget https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.30.0/deploy/static/provider/baremetal/service-nodeport.yaml`
+1. `kubectl apply -f ./`
+
+如果一切顺利，会出现 ingress 的 service 和 ingress 的 pod
+
+![](./images/2022-09-03-09-57-02.png)
+
+上图中的 service 中，有 http（80 端口）对应的 ip 和 https（443 端口）对应的 ip。
+
+之后，我们随意创建几个 pod 和 service（比如 nginx 的），接下来就是让 ingress 代理到 service。
 
 ### 使用
 
-:::tip
-TODO
-:::
+#### HTTP 代理
+
+```yml
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-http
+  namespace: dev
+spec:
+  rules:
+  - host: nginx.causes.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: nginx-service
+          servicePort: 80
+  - host: tomcat.causes.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: tomcat-service
+          servicePort: 8080
+```
+
+- `kubectl create -f ingress-http.yaml`
+- `kubectl get ingress ingress-http -n dev`
+- `kubectl describe ing ingress-http -n dev`
+
+在访问的时候应该使用 域名 + http 的端口访问。而且，一个教训就是，不要开着代理来实验。
+
+#### HTTPS 代理
+
+1. 生成证书：`openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -keyout tls.key -out tls.crt -subj "/C=CN/ST=BJ/L=BJ/O=nginx/CN=causes.com"`
+1. 创建密钥：`kubectl create secret tls tls-secret --key tls.key --cert tls.crt`
+1. `ingress-https.yaml`:
+
+    ```yml
+    apiVersion: extensions/v1beta1
+    kind: Ingress
+    metadata:
+      name: ingress-https
+      namespace: dev
+    spec:
+      tls:
+        - hosts:
+          - nginx.itheima.com
+          - tomcat.itheima.com
+          secretName: tls-secret # 指定秘钥
+      rules:
+      - host: nginx.itheima.com
+        http:
+          paths:
+          - path: /
+            backend:
+              serviceName: nginx-service
+              servicePort: 80
+      - host: tomcat.itheima.com
+        http:
+          paths:
+          - path: /
+            backend:
+              serviceName: tomcat-service
+              servicePort: 8080
+    ```
+
+在访问的时候，应该使用 域名 + https 的端口访问。
