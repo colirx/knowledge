@@ -1,5 +1,5 @@
 ---
-title: DataX-01-使用
+title: DataX
 categories:
 - bigdata
 tags:

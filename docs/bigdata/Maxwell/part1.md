@@ -1,5 +1,5 @@
 ---
-title: Maxwell-01-使用
+title: Maxwell
 categories:
 - bigdata
 tags:
