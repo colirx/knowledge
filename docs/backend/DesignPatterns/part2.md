@@ -1,8 +1,8 @@
 ---
 title: 设计模式-02-创建者模式
-categories:
+category:
 - backend
-tags:
+tag:
 - designPatterns
 author: causes
 ---

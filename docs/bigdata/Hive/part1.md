@@ -1,8 +1,8 @@
 ---
 title: Hive-01-起步
-categories:
+category:
 - bigdata
-tags:
+tag:
 - hive
 author: causes
 ---

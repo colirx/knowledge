@@ -1,8 +1,8 @@
 ---
 title: Flume
-categories:
+category:
 - bigdata
-tags:
+tag:
 - flume
 author: causes
 ---
@@ -453,13 +453,13 @@ agent 的写法建议直接翻阅[官方文档](https://flume.apache.org/)，里
 
 1. 加 flume 的依赖：
 
-        ```xml
-        <dependency>
-            <groupId>org.apache.flume</groupId>
-            <artifactId>flume-ng-core</artifactId>
-            <version>1.9.0</version>
-        </dependency>
-        ```
+    ```xml
+    <dependency>
+        <groupId>org.apache.flume</groupId>
+        <artifactId>flume-ng-core</artifactId>
+        <version>1.9.0</version>
+    </dependency>
+    ```
 
 1. 继承 `org.apache.flume.interceptor.Interceptor` 接口，编写 builder 类。
 

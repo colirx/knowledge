@@ -1,8 +1,8 @@
 ---
 title: Linux-03-安装配置
-categories:
+category:
 - base
-tags:
+tag:
 - linux
 author: causes
 ---
