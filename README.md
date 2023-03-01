@@ -1,44 +1,45 @@
-# README
+---
+home: true
+modules:
+  - BannerBrand
+bannerBrand:
+  bgImage: '/bg.svg'
+  title: 知识库
+  description: 计算机基础、后端、大数据
+  buttons:
+    - { text: base, link: '/docs/base/linux/part1' }
+    - { text: backend, link: '/docs/backend/concurrent/part1' }
+    - { text: bigdata, link: '/docs/bigdata/hadoop/part1' }
+---
 
-## 成立此项目的目的
+## 使用到的技术点
 
-1. 用于总结梳理知识体系（计算机专业知识，日后可能扩增其他内容的知识），知识库是内部知识库，旨在内部分享使用。
-1. 用于记录每个人的进步过程。
-    此项目其实类似于习惯进化，最终还是要靠自己自觉，但是有一个目标存在不至于每天颓废下去。
-    以我个人的经验来看，学习的痛苦其实很大程度在于决定要学习的那段时间。类似考试一样，开考前感觉就像处刑，考试期间其实痛苦并不这么大。
-1. 养成一个健康良好的学习方式，以更好的心态应对未来的就业挑战。
+**GitLab**
 
-## 知识库维护规则
+GitLab 提供代码的托管机制。
 
-1. 硬性规则：使用 [markdown](https://www.runoob.com/markdown/md-tutorial.html)、[git](https://learngitbranching.js.org/?locale=zh_CN)。
-1. 自己解决冲突，有冲突不要强制 push！
-1. 假如你想学习/整理某一些具体的知识到知识库，建议自己开一个 issue，指定给自己，这样相当于有一个目标一直在催你。
-1. 尽量不要直接 push 到 master 分支，自己新开分支，然后提交一个合并请求（Merge Request、MR）来合并。
+**CI**
 
-    注意提交到远端时，一定要在 commit 中写清楚自己这次做了什么，而且注意最好只留下一个 commit（使用 `git commit --amend`）方便查看。
-    同时注意，假如有对应的 issue，在 MR 的描述中贴上对应的 issue 链接。
+用到的 CI 是 GitLab 自带的 CI，主要的实现方式就是文件 `.gitlab-ci.yml + Runner`。
 
-1. 如果感觉其他人的知识库中有内容不对，提一个 issue，然后 at 对应的人，这样就做到了双方的共同成长。
-1. 目前知识库的分层暂时只做计算机专业技能，大概为：
+公用的 Runner 需要填写银行卡信息，所以你们想要自己实现 CI 的时候最好自己搭一个。
 
-    - `README.md`
-    - `docs`：这里是编写文章内容的地方，为的是让笔记通过 CI 自动部署到博客上。
-        - `README.md`：VuePress 的说明。
-        - `/.vuepress/`：VuePress 的一些配置和公共资源。
-        - `/base/*`：存放一些通用技能，例如《计算机网络》、《计算机组成原理》、《数据结构》、《设计模式》等。
-        - `/frontend/*`：前端专业技能。
-        - `/backend/*`：后端专业技能。
-        - `/bigdata/*`：大数据专业技能。
-    - `package.json`：VuePress 的配置。
+::: tip
+因为腾讯云服务器只有 1Mbps（128KB） 的速度，所以 CI 有可能因为网络原因（或者其他灵异事件）失败，重启一下试试。
+:::
 
-    如果之后知识库目录变动，会 at 所有人，并且更改 `README.md` 文件的说明，你可以首先在本地运行一下，看看内容是不是自己想要的：
+**VuePress**
 
-    ```yarn
-    yarn install
-    yarn docs:dev
-    ```
+生成静态博客的技术驱动。
 
-    之后进入到 `http://localhost:8080/knowledge/` 查看页面，和远程的没有任何区别。
+同类型的有很多，比如 Hexo，Hugo 等，选择 VuePress 的考虑是使用 Vue 开发的，如果想自己搞一个什么页面都可以。
 
-1. [知识库博客地址](http://causes.cloud/)。
-1. 其他[注意事项](http://causes.cloud/about)。
+## 现在的问题
+
+:::danger
+文章中图片的引用使用相对路径，例如引用 `./images/1.png`，不可以写为 `/images/1.png`，因为这样写会找到公共文件夹下的 `images` 文件夹。
+:::
+
+:::danger
+主题使用的是 [vuepress-theme-hope](https://vuepress-theme-hope.github.io/zh/)，里面使用了 yarn format 作为配置，所以在写文章之前需要首先看一下基本的书写规则，其实主要就是看一下如何在文章页面给文章填写题目、分类、标签。
+:::
