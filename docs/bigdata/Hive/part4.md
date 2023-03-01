@@ -1,8 +1,8 @@
 ---
 title: Hive-04-DQL
-category:
+categories:
 - bigdata
-tag:
+tags:
 - hive
 author: causes
 ---

@@ -1,8 +1,8 @@
 ---
 title: Spark-02-SparkSQL
-category:
+categories:
   - bigdata
-tag:
+tags:
   - spark
 author: causes
 ---

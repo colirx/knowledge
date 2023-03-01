@@ -1,8 +1,8 @@
 ---
 title: Hadoop-01-起步
-category:
+categories:
 - bigdata
-tag:
+tags:
   - hadoop
 author: causes
 ---

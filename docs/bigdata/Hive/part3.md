@@ -1,8 +1,8 @@
 ---
 title: Hive-03-DML
-category:
+categories:
 - bigdata
-tag:
+tags:
 - hive
 author: causes
 ---

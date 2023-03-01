@@ -1,8 +1,8 @@
 ---
 title: Hadoop-04-Yarn
-category:
+categories:
   - bigdata
-tag:
+tags:
   - hadoop
 author: causes
 ---
