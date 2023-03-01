@@ -1,8 +1,8 @@
 ---
 title: Git-01-常用指令
-categories:
+category:
 - base
-tags:
+tag:
 - git
 author: causes
 sidebarDepth: 4

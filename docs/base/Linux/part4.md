@@ -1,8 +1,8 @@
 ---
 title: Linux-04-Shell
-categories:
+category:
 - base
-tags:
+tag:
 - linux
 author: causes
 ---

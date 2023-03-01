@@ -1,8 +1,8 @@
 ---
 title: Zookeeper
-categories:
+category:
 - bigdata
-tags:
+tag:
 - zookeeper
 author: causes
 ---
@@ -230,187 +230,187 @@ Created /sanguo/weiguo0000000003
     ```java
     public class Zookeeper {
 
-    private String connectString;
-    private int sessionTimeout;
-    private ZooKeeper zkClient;
+        private String connectString;
+        private int sessionTimeout;
+        private ZooKeeper zkClient;
 
-    /**
-    * 获取客户端对象
-    */
-    @Before
-    public void init() throws IOException {
-
-        connectString = "hadoop102:2181,hadoop103:2181,hadoop104:2181";
-        sessionTimeout = 10000;
-
-        /*
-        1. 集群连接字符串
-        2. 连接超时时间，单位为毫秒
-        3. 当前客户端默认的监控器
+        /**
+        * 获取客户端对象
         */
-        zkClient = new ZooKeeper(connectString, sessionTimeout, new Watcher() {
-        @Override
-        public void process(WatchedEvent event) {
-        }
-        });
-    }
+        @Before
+        public void init() throws IOException {
 
-    @Test
-    public void create() throws InterruptedException, KeeperException {
-        /*
-        1. path: 节点路径
-        2. data: 节点内容，需要 byte
-        3. acl: 对操作用户的权限控制
-        4. createMode: 持久化选项
-            - PERSISTENT：持久的
-            - PERSISTENT_SEQUENTIAL：持久带序列
-            - EPHEMERAL：临时的
-            - EPHEMERAL_SEQUENTIAL：临时带序列
+            connectString = "hadoop102:2181,hadoop103:2181,hadoop104:2181";
+            sessionTimeout = 10000;
+
+            /*
+            1. 集群连接字符串
+            2. 连接超时时间，单位为毫秒
+            3. 当前客户端默认的监控器
+            */
+            zkClient = new ZooKeeper(connectString, sessionTimeout, new Watcher() {
+            @Override
+            public void process(WatchedEvent event) {
+            }
+            });
+        }
+
+        @Test
+        public void create() throws InterruptedException, KeeperException {
+            /*
+            1. path: 节点路径
+            2. data: 节点内容，需要 byte
+            3. acl: 对操作用户的权限控制
+            4. createMode: 持久化选项
+                - PERSISTENT：持久的
+                - PERSISTENT_SEQUENTIAL：持久带序列
+                - EPHEMERAL：临时的
+                - EPHEMERAL_SEQUENTIAL：临时带序列
+            */
+            zkClient.create("/sanguo", "guanyu".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+        }
+
+        /**
+        * 获取子节点列表，不监听
         */
-        zkClient.create("/sanguo", "guanyu".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-    }
-
-    /**
-    * 获取子节点列表，不监听
-    */
-    @Test
-    public void ls() throws InterruptedException, KeeperException {
-        List<String> children = zkClient.getChildren("/", false);
-        System.out.println(children);
-    }
-
-    /**
-    * 获取子节点列表并监听
-    */
-    @Test
-    public void lsAndWatch() throws InterruptedException, KeeperException {
-        List<String> children = zkClient.getChildren("/", new Watcher() {
-        @Override
-        public void process(WatchedEvent watchedEvent) {
-            System.out.println("结果发生变化");
+        @Test
+        public void ls() throws InterruptedException, KeeperException {
+            List<String> children = zkClient.getChildren("/", false);
+            System.out.println(children);
         }
-        });
-        System.out.println(children);
-        // 因为设置了监听，所以当前线程不能结束
-        Thread.sleep(Long.MAX_VALUE);
-    }
 
-    /**
-    * 判断 node 是否存在
-    */
-    @Test
-    public void exist() throws InterruptedException, KeeperException {
-        String path = "/sanguo";
-        Stat stat = zkClient.exists(path, false);
-        boolean isExit = Objects.isNull(stat);
-        System.out.printf("%s %s%n", path, isExit ? "not exist" : "exist");
-    }
-
-    /**
-    * 获取节点数据，不监听
-    */
-    @Test
-    public void getData() throws InterruptedException, KeeperException {
-        String path = "/sanguo";
-        Stat stat = zkClient.exists(path, false);
-        if (Objects.isNull(stat)) {
-        System.out.printf("%s not exist", path);
-        return;
-        }
-        byte[] data = zkClient.getData(path, false, stat);
-        System.out.println(new String(data));
-    }
-
-    /**
-    * 获取节点数据并监听
-    */
-    @Test
-    public void getDataAndWatch() throws InterruptedException, KeeperException {
-        String path = "/sanguo";
-        Stat stat = zkClient.exists(path, false);
-        if (Objects.isNull(stat)) {
-        System.out.printf("%s not exist", path);
-        return;
-        }
-        byte[] data = zkClient.getData(path, new Watcher() {
-        @Override
-        public void process(WatchedEvent watchedEvent) {
-            System.out.println("节点变化……");
-        }
-        }, stat);
-        System.out.println(new String(data));
-        Thread.sleep(Long.MAX_VALUE);
-    }
-
-    /**
-    * 设置节点数据
-    */
-    @Test
-    public void setData() throws InterruptedException, KeeperException {
-        String path = "/sanguo";
-        Stat stat = zkClient.exists(path, false);
-        if (Objects.isNull(stat)) {
-        System.out.printf("%s not exist", path);
-        return;
-        }
-        /*
-        1. 节点路径
-        2. 节点新值
-        3. 节点版本号
+        /**
+        * 获取子节点列表并监听
         */
-        zkClient.setData(path, "liubei".getBytes(), stat.getVersion());
-    }
-
-    /**
-    * 删除空节点
-    */
-    @Test
-    public void deleteNullNode() throws InterruptedException, KeeperException {
-        String path = "/a";
-        Stat stat = zkClient.exists(path, false);
-        if (Objects.isNull(stat)) {
-        System.out.printf("%s not exist", path);
-        return;
+        @Test
+        public void lsAndWatch() throws InterruptedException, KeeperException {
+            List<String> children = zkClient.getChildren("/", new Watcher() {
+            @Override
+            public void process(WatchedEvent watchedEvent) {
+                System.out.println("结果发生变化");
+            }
+            });
+            System.out.println(children);
+            // 因为设置了监听，所以当前线程不能结束
+            Thread.sleep(Long.MAX_VALUE);
         }
-        zkClient.delete(path, stat.getVersion());
-    }
 
-    /**
-    * 递归删除节点，可以删除非空节点
-    */
-    @Test
-    public void deleteNode() throws InterruptedException, KeeperException {
-        deleteAll("/sanguo");
-    }
+        /**
+        * 判断 node 是否存在
+        */
+        @Test
+        public void exist() throws InterruptedException, KeeperException {
+            String path = "/sanguo";
+            Stat stat = zkClient.exists(path, false);
+            boolean isExit = Objects.isNull(stat);
+            System.out.printf("%s %s%n", path, isExit ? "not exist" : "exist");
+        }
 
-    public void deleteAll(String path) throws InterruptedException, KeeperException {
-        Stat stat = zkClient.exists(path, false);
-        if (Objects.isNull(stat)) {
-        return;
+        /**
+        * 获取节点数据，不监听
+        */
+        @Test
+        public void getData() throws InterruptedException, KeeperException {
+            String path = "/sanguo";
+            Stat stat = zkClient.exists(path, false);
+            if (Objects.isNull(stat)) {
+            System.out.printf("%s not exist", path);
+            return;
+            }
+            byte[] data = zkClient.getData(path, false, stat);
+            System.out.println(new String(data));
         }
-        List<String> children = zkClient.getChildren(path, false);
-        if (children.isEmpty()) {
-        zkClient.delete(path, stat.getVersion());
-        return;
-        }
-        children.forEach(child -> {
-        try {
-            deleteAll(String.format("%s/%s", path, child));
-        } catch (InterruptedException | KeeperException e) {
-            e.printStackTrace();
-        }
-        });
-        // 注意最后不要忘记删除当前节点
-        zkClient.delete(path, stat.getVersion());
-    }
 
-    /**
-    * 关闭客户端对象
-    */
-    @After
-    public void close() throws InterruptedException {
-        zkClient.close();
-    }
+        /**
+        * 获取节点数据并监听
+        */
+        @Test
+        public void getDataAndWatch() throws InterruptedException, KeeperException {
+            String path = "/sanguo";
+            Stat stat = zkClient.exists(path, false);
+            if (Objects.isNull(stat)) {
+            System.out.printf("%s not exist", path);
+            return;
+            }
+            byte[] data = zkClient.getData(path, new Watcher() {
+            @Override
+            public void process(WatchedEvent watchedEvent) {
+                System.out.println("节点变化……");
+            }
+            }, stat);
+            System.out.println(new String(data));
+            Thread.sleep(Long.MAX_VALUE);
+        }
+
+        /**
+        * 设置节点数据
+        */
+        @Test
+        public void setData() throws InterruptedException, KeeperException {
+            String path = "/sanguo";
+            Stat stat = zkClient.exists(path, false);
+            if (Objects.isNull(stat)) {
+            System.out.printf("%s not exist", path);
+            return;
+            }
+            /*
+            1. 节点路径
+            2. 节点新值
+            3. 节点版本号
+            */
+            zkClient.setData(path, "liubei".getBytes(), stat.getVersion());
+        }
+
+        /**
+        * 删除空节点
+        */
+        @Test
+        public void deleteNullNode() throws InterruptedException, KeeperException {
+            String path = "/a";
+            Stat stat = zkClient.exists(path, false);
+            if (Objects.isNull(stat)) {
+            System.out.printf("%s not exist", path);
+            return;
+            }
+            zkClient.delete(path, stat.getVersion());
+        }
+
+        /**
+        * 递归删除节点，可以删除非空节点
+        */
+        @Test
+        public void deleteNode() throws InterruptedException, KeeperException {
+            deleteAll("/sanguo");
+        }
+
+        public void deleteAll(String path) throws InterruptedException, KeeperException {
+            Stat stat = zkClient.exists(path, false);
+            if (Objects.isNull(stat)) {
+            return;
+            }
+            List<String> children = zkClient.getChildren(path, false);
+            if (children.isEmpty()) {
+            zkClient.delete(path, stat.getVersion());
+            return;
+            }
+            children.forEach(child -> {
+            try {
+                deleteAll(String.format("%s/%s", path, child));
+            } catch (InterruptedException | KeeperException e) {
+                e.printStackTrace();
+            }
+            });
+            // 注意最后不要忘记删除当前节点
+            zkClient.delete(path, stat.getVersion());
+        }
+
+        /**
+        * 关闭客户端对象
+        */
+        @After
+        public void close() throws InterruptedException {
+            zkClient.close();
+        }
     }
     ```
 

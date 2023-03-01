@@ -1,8 +1,8 @@
 ---
 title: Hadoop-03-MapReduce
-categories:
+category:
   - bigdata
-tags:
+tag:
   - hadoop
 author: causes
 ---

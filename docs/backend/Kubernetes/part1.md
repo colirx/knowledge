@@ -1,8 +1,8 @@
 ---
 title: Kubernetes-01-环境搭建
-categories:
+category:
 - backend
-tags:
+tag:
 - k8s
 author: causes
 ---
@@ -122,6 +122,9 @@ Pod 是 Kubernetes 的最小操作单元，容器必须跑在 Pod 中。
 在上图中，四个紫色的 tomcat 是在 pod 上启动的，service 作为 pod 提供服务的统一入口，用这个来实现负载均衡的效果。
 
 在上图中可以看到，有两类标签：`app: tom`、`app: tomcat`，service 通过标签来将 pod 分类，维护了标签相同的 pod。
+
+
+
 
 ## 搭建 K8s 集群
 
@@ -261,126 +264,3 @@ kubernetes 有多种部署方式，目前的主流方式有 minikube、kubeadm�
     ```
 
 1. 重启 Linux
-
----
-
-#### Docker 安装
-
-1. 切换镜像源：`wget https://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo -O /etc/yum.repos.d/docker-ce.repo`
-1. 安装指定版本的 docker：`yum install --setopt=obsoletes=0 docker-ce-18.06.3.ce-3.el7 -y`
-1. kubernetes 推荐使用 systemd 来代替 docker 默认的 cgroupfs：
-
-    1. `mkdir /etc/docker`
-    1. daemon.json
-
-        ```shell
-        cat <<EOF >  /etc/docker/daemon.json
-        {
-        "exec-opts": ["native.cgroupdriver=systemd"],
-        "registry-mirrors": ["https://kn0t2bca.mirror.aliyuncs.com"]
-        }
-        EOF
-        ```
-
-1. docker 启动：
-
-    1. `systemctl restart docker`
-    1. `systemctl enable docker`
-
-#### 安装 k8s 组件
-
-1. 编辑 `/etc/yum.repos.d/kubernetes.repo`，切环镜像：
-
-    ```shell
-    [kubernetes]
-    name=Kubernetes
-    baseurl=http://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64
-    enabled=1
-    gpgcheck=0
-    repo_gpgcheck=0
-    gpgkey=http://mirrors.aliyun.com/kubernetes/yum/doc/yum-key.gpg
-        http://mirrors.aliyun.com/kubernetes/yum/doc/rpm-package-key.gpg
-    ```
-
-1. 安装 kubectl、kubeadmin、kubelet：`yum install --setopt=obsoletes=0 kubeadm-1.17.4-0 kubelet-1.17.4-0 kubectl-1.17.4-0 -y`
-1. 设置开机自启动：`systemctl enable kubelet`
-1. 准备集群镜像：
-
-    ```shell
-    images=(
-        kube-apiserver:v1.17.4
-        kube-controller-manager:v1.17.4
-        kube-scheduler:v1.17.4
-        kube-proxy:v1.17.4
-        pause:3.1
-        etcd:3.4.3-0
-        coredns:1.6.5
-    )
-
-    for imageName in ${images[@]} ; do
-        docker pull registry.cn-hangzhou.aliyuncs.com/google_containers/$imageName
-        docker tag registry.cn-hangzhou.aliyuncs.com/google_containers/$imageName    k8s.gcr.io/$imageName
-        docker rmi registry.cn-hangzhou.aliyuncs.com/google_containers/$imageName
-    done
-    ```
-
-1. 集群初始化（master 执行即可）：
-
-    ```shell
-    kubeadm init \
-        --kubernetes-version=v1.17.4 \
-        --pod-network-cidr=10.244.0.0/16 \
-        --service-cidr=10.96.0.0/12 \
-        --apiserver-advertise-address=192.168.10.100
-    ```
-
-    注意，假如安装出现问题，参考 [reset](https://kubernetes.io/docs/reference/setup-tools/kubeadm/kubeadm-reset/) 回滚。
-
-1. 创建必要文件（master 执行即可）：
-
-    1. `mkdir -p $HOME/.kube`
-    1. `sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config`
-    1. `sudo chown $(id -u):$(id -g) $HOME/.kube/config`
-
-1. 将 node 加入集群（只需要在 node 执行即可）：
-
-    ```shell
-    kubeadm join 192.168.10.100:6443 --token 3n3xca.iw7j9fbvzfqr7yit \
-        --discovery-token-ca-cert-hash sha256:eb14072cdc01f56def739736ff1cdca1b29c5500d998c9759fd9695897d8ae11
-    ```
-
-    注意，这行命令应该是 master 进行集群初始化的命令。
-
-1. 查看状态：
-
-    ```
-    [root@master ~]# kubectl get nodes
-    NAME     STATUS     ROLES    AGE    VERSION
-    master   NotReady   master   117s   v1.17.4
-    node1    NotReady   <none>   85s    v1.17.4
-    node2    NotReady   <none>   79s    v1.17.4
-    ```
-
-    状态为 NotReady，是因为没有配置网络插件
-
-1. 安装网络插件（master 执行即可）：
-
-    k8s 支持 flannel、calico、canal 等，选一种使用均可。这里使用 flannel。
-
-    1. `wget https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml`
-    1. `kubectl apply -f kube-flannel.yml`
-
-    之后查看 nodes，假如一直没有 ready，使用 `kubectl get pod -n kube-system` 查看节点状态，如果是 `Init:ImagePullBackOff` 状态的，手动拉一下 `flannel` 镜像，比如 `docker pull quay.io/coreos/flannel:v0.14.0`，注意版本对应问题。
-
-#### 使用服务部署测试
-
-1. `kubectl create deployment nginx --image=nginx:1.14-alpine`
-1. `kubectl expose deployment nginx --port=80 --type=NodePort`
-1. `kubectl get pods,service`
-1. 在浏览器访问 nginx 地址，地址为 master 的节点 + pod 端口
-
-    ![](./images/2022-08-28-00-21-15.png)
-
-## 搭建 minikube
-
-[minikube](https://minikube.sigs.k8s.io/docs/start/)，是单节点的 k8s 集群，主要用于本机测试、学习使用。适合配置不高的电脑。
