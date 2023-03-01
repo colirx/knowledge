@@ -1,8 +1,8 @@
 ---
-title: Flink-01-基础
-category:
+title: Flink-01-环境搭建
+categories:
 - bigdata
-tag:
+tags:
 - flink
 author: causes
 ---
@@ -50,6 +50,20 @@ Flink 和 Spark 是不同的：
 
 - Spark 采用 RDD 的架构，Spark Streaming 其实本质上也是攒批操作。Flink 是数据流和事件 Event 序列。
 - Spark 是批处理，将 DAG 划分为一个个 Stage，每个 Stage 完成之后才可以算下一个 Stage。Flink 是标准的流执行模式，一个事件在一个节点处理完成之后就可以直接发送到下一个节点。
+
+**分层 API**
+
+![](images/2022-07-13-16-06-49.png)
+
+Flink 进行了 API 的分层，可以看到，从上到下分别对应着各种的语言。
+
+越往上面表达越简单，使用越方便，但是对于一些需求可能不太好实现。越往下面表达越具体，表达能力越丰富，可以实现一些复杂的需求。
+
+最上层的是 SQL，SQL 是基于表的，所以 SQL 和 Table API 基本上是密不可分的，但是事实上 SQL 和 Table API 有一些内容还是有些欠缺的，在不断发展。
+
+DataStream API 是核心 API，用于进行流处理，可以应用于大部分的场景。DataSet API 是用于进行批处理，但是现在已经很少用了（DataStream API 已经实现了流批一体）。
+
+有状态的流处理是最底层的 API，理论上可以做任何事情（包括状态管理、时间计算等）。
 
 ## Flink 运行架构基础
 
@@ -113,7 +127,7 @@ Flink 包含四个不同组件：
 
 ## 起步
 
-**WordCount**
+### DataSet API（将要弃用）
 
 1. 搭建环境
 
@@ -141,359 +155,200 @@ Flink 包含四个不同组件：
             <version>${flink.version}</version>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
     ```
 
 1. WordCount 程序：
 
     ```java
-    public class WordCount {
-        public static void main(String[] args) throws Exception {
-            StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-            // 给程序整体设置并行度，这里的设置的优先级要高于配置
-            env.setParallelism(1);
-            DataStreamSource<String> stream = env.fromElements("HELLO WORLD", "HELLO WORLD");
-            stream
-                .flatMap(new FlatMapFunction<String, Tuple2<String, Integer>>() {
-                @Override
-                public void flatMap(String value, Collector<Tuple2<String, Integer>> out) throws Exception {
-                    String[] arr = value.split("\\s");
-                    Arrays.stream(arr).forEach(s -> out.collect(Tuple2.of(s, 1)));
-                }
-                })
-                // 类似 groupBy，按照 f0 分组
-                .keyBy(r -> r.f0)
-                .sum(1)
-                .print();
-            // 程序执行
-            env.execute();
-        }
-    }
+    // 1. 环境构建
+    ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
+    // 2. 读取数据源
+    DataSource<String> source = env.readTextFile("input/words.txt");
+    // 3. 要进行 word count，那么就先转为 (word, count) 的二元组，这个 Tuple 是 flink java 的，不是 scala 的
+    FlatMapOperator<String, Tuple2<String, Long>> wordsForTuple = source.flatMap(new FlatMapFunction<String, Tuple2<String, Long>>() {
+          // 在 flink 中，返回的是一个 Collector，泛型是我们需要返回的类型
+          @Override
+          public void flatMap(String line, Collector<Tuple2<String, Long>> out) throws Exception {
+            String[] words = line.split(" ");
+            for (String word : words) {
+              // 这里使用的是 collect 的方式进行返回，而不是直接使用 return 的方式，每进行一次 collect 就相当于返回一次
+              out.collect(Tuple2.of(word, 1L));
+            }
+          }
+        })
+        // 4. 因为 Java 的函数式编程是之后新加的特性，所以为了避免类型擦除的问题，需要显示再指定一次类型
+        .returns(Types.TUPLE(Types.STRING, Types.LONG));
+    // 5. 将 words 进行分组，在 flink 中，groupBy 可以直接指定索引来进行分组，以实现 spark 中 groupByKey 的操作
+    UnsortedGrouping<Tuple2<String, Long>> wordsForGroup = wordsForTuple.groupBy(0);
+    // 6. 组内聚合，这个 1 也是索引的位置，而不是进行聚合的数字
+    AggregateOperator<Tuple2<String, Long>> sum = wordsForGroup.sum(1);
+    // 7. 打印输出
+    sum.print();
     ```
 
-## Flink DataStream API
+    以上的这套 API 归根结底都是继承自 DataSet，所以这套 API 也叫做 DataSet API。这套 API 在以前是来做批处理的基本操作，假如做流处理就需要继承 DataStream 的那一套 API 了。
 
-接下来的内容是大量的 API 操作，需要大量的练习使用
+    官方认为这个不够统一，所以之后我们统一使用的就都是 DataStream API 来做流批一体，这套 DataSet API 就成为历史。
 
-### 读取数据源
+### DataStream API（流处理）
 
-**准备基础类**
+对于流处理而言，有两种类型：有界流、无界流。
 
-```java
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class UserBehavior {
+有界流就是我们通常进行批处理的数据，也就是这些数据的数量已经固定了。无界流就是说数据可能会随时进行增加的数据。
 
-  private String userId;
-  private String itemId;
-  private String categoryId;
-  private String behaviorType;
-  private Long timeStamp;
-}
-```
+#### 有界流
 
-**从集合中读取**
+有界流的 WordCount：
 
 ```java
+// 1. 使用流的执行环境
 StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-env.setParallelism(1);
-
-// 1. 接收一个可变长数组，直接取得数据
-env.fromElements(
-    new UserBehavior("543462", "1715", "1464116", "pv", 1511658000 * 1000L),
-    new UserBehavior("662867", "2244074", "1575622", "pv", 1511658000 * 1000L)
-);
-
-// 2. 通过集合取得数据
-List<UserBehavior> userBehaviors = new ArrayList<>();
-userBehaviors.add(new UserBehavior("543462", "1715", "1464116", "pv", 1511658000 * 1000L));
-userBehaviors.add(new UserBehavior("662867", "2244074", "1575622", "pv", 1511658000 * 1000L));
-env.fromCollection(userBehaviors);
-
+// 2. 读取文件，这里给到的 source 是 DataStream Source
+DataStreamSource<String> dsSource = env.readTextFile("input/words.txt");
+// 3. 这个过程和之前批处理的流程是一样的，为了方便，就直接将 new FlatMapFunction 省掉了
+SingleOutputStreamOperator<Tuple2<String, Long>> wordsForTuple = dsSource.flatMap((FlatMapFunction<String, Tuple2<String, Long>>) (line, out) -> {
+        String[] words = line.split(" ");
+        for (String word : words) {
+        out.collect(Tuple2.of(word, 1L));
+        }
+    })
+    .returns(Types.TUPLE(Types.STRING, Types.LONG));
+// 4. groupBy 变为了 keyBy，使用更加简单了
+KeyedStream<Tuple2<String, Long>, String> keyedStream = wordsForTuple.keyBy(data -> data.f0);
+// 5. 指定索引位置，进行聚合
+SingleOutputStreamOperator<Tuple2<String, Long>> sum = keyedStream.sum(1);
+// 6. 输出
+sum.print();
+// 7. 执行，在流处理中，上面只是定义了每一步的逻辑，真正执行是在这里
 env.execute();
 ```
 
-**从文件中读取**
+看一下有界流的输出：
+
+```
+7> (WORLD,1)
+12> (FLINK,1)
+11> (HELLO,1)
+11> (HELLO,2)
+```
+
+因为流处理的逻辑，数据是一个一个过来的，所以也需要一条一条进行统计，最后的结果是一样的，但是中间的执行过程有很大不同。
+
+并且我们可以看到，字母的输出顺序是不同的（分布式的执行程序，在本地就是多线程模拟）。
+
+前面的尖括号代表的是本地的一个线程来进行执行的，那么对应集群环境，就是一个任务槽（之后会讲）执行。
+
+最前面的数字代表的是本地并行子任务的编号，并行子任务由并行度来决定，因为我们在代码中没有设置并行度，所以并行度默认是本地的 CPU 个数。
+
+并且还有一个规律，例如 HELLO，他的并行子任务编号都是 11，这就代表着 HELLO 这个字母全都分给了 11 这个任务。这也比较好理解，因为是做聚合操作，那么肯定要将相同的字母放到一个并行子任务上。
+
+#### 无界流
+
+在真实场景中，数据往往是无限的，所以文件就不要用了，直接使用监听端口来聚合消息，首先进行 `nc -lk 7777`，然后启动如下代码：
 
 ```java
 StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-env.setParallelism(1);
-
-env.readTextFile("/tmp/userBehavior.csv");
-
+// 监听端口，之后的逻辑和之前完全一样
+DataStreamSource<String> dsSource = env.socketTextStream("localhost", 7777);
+SingleOutputStreamOperator<Tuple2<String, Long>> wordsForTuple = dsSource.flatMap((FlatMapFunction<String, Tuple2<String, Long>>) (line, out) -> {
+        String[] words = line.split(" ");
+        for (String word : words) {
+        out.collect(Tuple2.of(word, 1L));
+        }
+    })
+    .returns(Types.TUPLE(Types.STRING, Types.LONG));
+KeyedStream<Tuple2<String, Long>, String> keyedStream = wordsForTuple.keyBy(data -> data.f0);
+SingleOutputStreamOperator<Tuple2<String, Long>> sum = keyedStream.sum(1);
+sum.print();
 env.execute();
 ```
 
-**从 Socket 中读取**
+在端口中输入字母，在程序中会逐渐累加输出。
 
-```java
-StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-env.setParallelism(1);
+### Flink 部署
 
-env.socketTextStream(host, port);
+实际意义上，我们应该真正启动一个集群，然后启动。之前我们已经介绍过了 JobManager、TaskManager，其实还有一个 Client 客户端。
 
-env.execute();
-```
+Client 的作用就是将代码转为 Job，交给 JobManager，JobManager 会进一步转换为 Task 最终分发给各个 TaskManager（其实就是 worker），然后 TaskManager 去干活。
 
-**从 Kafaka 中读取**
+Flink 是比较灵活的，在实际场景中用不到 ResourceManager 这个组件，而是直接和一些资源平台做集成，比如 Yarn。
+
+集群部署有几种模式：
+
+- 会话模式：最符合常规思维的模式，就是先启动集群，然后一直保持运行状态，其中集群资源多少已经固定好了，作业竞争资源，竞争失败就失败。
+- 单作业模式：将资源按照作业隔离，来一个作业就单独为这个作业创建一个 Flink 集群。适合资源需要大、时间长的作业。必须要结合资源管理平台。
+- 应用模式：前两者都是先将作业在客户端上进行代码解析，然后拆成几个作业，之后交给 job manager 跑。应用模式是直接交给 job manager，代码解析都交给 job manager。
+
+#### 本地启动
+
+本地启动就是不搭建集群，直接启动一个单机程序。
+
+直接解压，然后使用 `bin/start-cluster.sh` 直接启动。
+
+启动起来使用 jps 查看，可以看到：
+
+- StandaloneSessionClusterEntrypoint: 独立会话的入口
+- TaskManagerRunner: 运行 task 的节点。
+
+也就是说，在独立会话状态下，本机既是 JobManager，也是 TaskManager。
+
+关闭也十分简单，直接使用 `bin/stop-cluster.sh` 关闭。
+
+启动起来之后，进入端口 `8081` 就可以查看到 WEB 页面了。
+
+#### 集群配置
 
 ::: tip
-待补充
+TODO
 :::
 
-**自定义数据源读取**
+#### 打包部署
 
-::: tip
-待补充
-:::
+1. WEB UI
 
-### 基本算子
+    因为有了打包插件，所以打包之后会有两个 jar，其中一个是 `with-dependencies.jar`，这个 jar 是带有 flink 依赖的 jar，我们不需要，直接上传另一个 jar（在 submit new job 页面中）。
 
-基本算子：对每个单独的事件做处理，每个输入都会产生一个输出。包括转换、数据分割、过滤等。
+    上传之后，指定入口类（`com.causes.WordCount`），并且可以指定并行度，给 args，save point path（保存点）。
 
-```java
-StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-env.setParallelism(1);
+    还有一个按钮是 show plan，是执行的流程。
 
-List<UserBehavior> userBehaviors = new ArrayList<>();
-userBehaviors.add(new UserBehavior("543462", "1715", "1464116", "pv", 1511658000 * 1000L));
-userBehaviors.add(new UserBehavior("662867", "2244074", "1575622", "click", 1511658000 * 1000L));
+    我们提交，之后假如出错可到 job manager、task manager 中查看日志和输出。
 
-DataStreamSource<UserBehavior> stream = env.fromCollection(userBehaviors);
+    想要取消执行只需要按下 cancel job 按钮。
 
-// 1. map
-stream.map(UserBehavior::getItemId);
+1. 命令行
 
-// 2. filter
-stream.filter(userBehavior -> "pv".equalsIgnoreCase(userBehavior.getBehaviorType()));
+    提交：`bin/flink run -m [Job Manager 主机:端口] -c [入口类] -p [并行度] [jar]`
 
-// 3. flatMap 就不用解释作用了，这里注意，我们是可以在 flatMap 中向下游发送多次的内容的。并且在转换之后，还需要指定一下流的种类
-stream
-    .map(UserBehavior::getBehaviorType)
-    .flatMap((FlatMapFunction<String, String>) (s, out) -> {
-      if ("pv".equals(s)) {
-        out.collect(s);
-      } else {
-        out.collect(s);
-        out.collect(s);
-      }
-    })
-    .returns(Types.STRING)
-    .print();
+    取消：`bin/flink cancel [job id]`
 
-env.execute();
-```
+注意，我们的 task 都会占用一个 task slot，假如 slot 不足就会直接报错 `Could not acquire the minimum required resources`，因为获取不到最小需要的资源。
 
-### 键控流转换算子
+#### Yarn 
 
-简单来说，就是对数据进行分组。DataStream API 提供了一个叫做 KeyedStream 的抽象，这个抽象会从逻辑上对数据流进行分区，分区后的数据具有相同的 key。不同分区的流互不相关。
-
-接下来也有基于 key 的操作：滚动聚合、reduce。
-
-```java
-StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-env.setParallelism(1);
-
-// 准备一组 Tuple3，进行分流和做计算
-DataStreamSource<Tuple3<Integer, Integer, Integer>> stream = env.fromElements(
-    Tuple3.of(1, 2, 2),
-    Tuple3.of(2, 3, 1),
-    Tuple3.of(2, 2, 4),
-    Tuple3.of(1, 5, 3)
-);
-
-/*
-  对第一个字段进行分流。很多 API 都是 groupBy，不过在 Flink 中使用 keyBey 是分流。
-
-  滚动聚合方法：
-
-  - sum()：在输入流上滚动相加，可以输入值的索引来针对某个位置做计算
-  - min()：求输入流上的最小值
-  - max()：求输入流上的最大值
-  - minBy()：再输入流上针对某字段求最小值，并返回包含最小值的事件
-  - maxBy()：类似 minBy()，不过是求最大值
-
-  虽然流是针对第一个字段进行分流的，但是计算是根据第二个字段做计算：
-
-  1. 分流，形成两个流 [(1, 2, 2)、(1, 5, 3)]、[(2, 3, 1)、(2, 2, 4)]
-  2. 每组中分别做计算 [(1, 2, 2)、(1, 7, 2)]、[(2, 3, 1)、(2, 5, 1)]
-
-  从结果中可以看出以下事情：
-
-  1. 流处理的意思就是每个事件都会处理，所以在进行 print() 时，每组中的第一个元素都会打印。
-  2. 对于每组来说，都会基于第一个作为基础，然后按照指定字段进行累加。
-*/
-stream.keyBy(0).sum(1).print();
-
-/*
-  第二种方式来分流，其实作用都是一样的，写法不同而已，真实中这样的方式更常用
-
-  reduce 是滚动聚合的泛化实现，它不会改变流的事件类型，需要你自己去实现内容，我们会求每组中，第二个值的最大值
-*/
-stream
-    .keyBy(r -> r.f0)
-    .reduce((ReduceFunction<Tuple3<Integer, Integer, Integer>>) (in, out) -> in.f1 > out.f1 ? in : out)
-    .print();
-
-env.execute();
-```
-
-### 分布式转换算子
-
-有时候，我们需要在应用程序的层面控制分区策略，或者做自定义分区策略（例如负载均衡、解决数据倾斜等），又或者需要数据拆分并行计算等，我们可以使用 DataStream 的一些方法自定义分区策略。
-
-注意，这个分区和 `keyBy` 有本质的不同，`keyBy` 产生的是 `KeyedStream`，而自定义的分区策略产生的是 `DataStream`。
-
-**Random**
-
-随机数据交换，由 `DataStream.shuffle()` 方法实现，shuffle 方法将数据随机地分配到下游算子中的并行任务中去。
-
-**Round-Robin**
-
-`rebalance()` 方法使用的是轮询的方式负载均衡，它会将数据流平均分配到之后的所有并行任务中。
-
-`rescale()` 也是 Round-Robin 方式，不过它会将数据平均分配到一部分的任务中
-
-两者的区别：是在于任务之间连接机制不同，rebalance 会针对所有的任务发送者和接受者建立通道，但是 rescale 只会在这个任务的下游中建立通道。
-
-![](./images/2022-04-01-11-09-54.png)
-
-**Broadcast**
-
-`broadcast()`，类似 Spark 的广播变量，会将数据复制并发送到下游所有算子的并行任务中。
-
-**Global**
-
-`global()` 将所有的输入流数据都发送到下游算子的第一个并行任务中去，这个操作会将所有数据发送到同一个 task，所以需要谨慎。
-
-**Custom**
-
-可以使用 `partitionCustom()` 自定义分区策略，此方法接受一个 `Partitioner` 对象，这个对象需要实现分区逻辑以及定义针对流的哪一个字段或者 key 来分区。
-
-**设置并行度**
-
-一个算子并行任务的个数叫做并行度。在 Flink 中可以设置并行度，每个算子的并行任务都会处理这个算子的输入流的一份子集。
-
-假如我们在本地运行，并行度将被设置为 CPU 的核数，假如将应用程序提交到 Flink 集群中，并行度将被设置为集群的默认并行度（除非在提交时，在客户端显示设置并行度）。
-
-设置某个算子的并行度优先级 > 代码中总体设置的并行度优先级 > 环境中的并行度。
-
-并行度是一个动态的概念，插槽数量是一个静态的概念，并行度 <= 插槽数量。一个任务槽最多运行一个并行度。这也就意味着，当任务槽数量 < 并行度时，任务将无法运行。
-
-### Flink 类型系统
-
-Flink 支持 Java 所有普通数据类型，并且还包含专门为 Java 实现的元组 Tuple，支持 Pojo 类。
-
-**Tuple**
-
-Tuple 是强类型，根据元素数量的不同被实现了不同的类，从 Tuple1 一直到 Tuple25。
-
-Tuple 可以通过下标访问，下标从 0 开始，访问时使用 `tuple.f0` 或者 `tuple.getField(0)` 获取元素。
-
-Tuple 是可变数据结构，所以 Tuple 中的元素可以重新赋值，重复利用 Tuple 可以减轻 GC 压力。
-
-```java
-Tuple2<String, Integer> tuple = Tuple2.of("causes", 23);
-System.out.println(tuple.f0);
-System.out.println((String) tuple.getField(0));
-// 设置索引为 0 的位置的数值
-tuple.setField(23, 0);
-```
-
-**Pojo**
-
-在 Java 中，类型信息是 `org.apache.flink.api.common.typeinfo.Types`，例如 `Types.INT`、`Types.POJO(UserBehavior.class);`。
-
-**Lambda 表达式**
-
-Java 支持 Lambda 表达式，但是需要注意一个点：Java 编译器在 lambda 表达式的推断类型信息时，在编译一些信息时可能会出现错误，例如 `flatMap`、`map` 等需要泛型的算子。
-
-在使用一个 `flatMapFunction` 时，本来是 `void flatMap(IN value, Collector<OUT> out)`，但是 Java 会编译为 `void flatMap(IN value, Collector out)`
-
-如此一来，Flink 就无法自动推断输出的类型信息，在这种情况下，我们需要手动指定类型信息，否则会被视为 Object，这会导致低效的序列化，甚至可能会报错。
-
-一般来说，这种类型被擦除的问题可以有两种方式解决：
-
-1. 手动指定类型信息。
-1. 使用类来代替。
-
-```java
-StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-env.setParallelism(1);
-
-env
-    .fromElements(1, 2, 3)
-    .flatMap((FlatMapFunction<Integer, Integer>) (num, out) -> {
-      out.collect(num);
-    })
-    // 1. 手动指定类型信息
-    .returns(Types.INT)
-    .print();
-
-env
-    .fromElements(1, 2, 3)
-    // 2. 使用类 / 匿名类直接代替
-    .flatMap(new FlatMapFunction<Integer, Integer>() {
-      @Override
-      public void flatMap(Integer num, Collector<Integer> out) throws Exception {
-        out.collect(num);
-      }
-    })
-    .print();
-
-env.execute();
-```
-
-### 富函数
-
-富函数就是普通函数的升级版本，它可以提供 `open` 和 `close` 方法，用于在执行真正的函数之前和之后做一些其他操作。
-
-提供了 `getRuntimeContext()` 提供了函数的 `RuntimeContext` 的一些信息，例如并行度，当前子任务的索引，子任务的名字，同时包含了访问分区状态的方法。
-
-基本上每个常规函数都有富函数版本，只要在函数前面加上 `Rich` 就是富函数，例如 `RichMapFunction`、`RichFlatMapFunction` 等。
-
-```java
-new RichFlatMapFunction<Integer, Integer>() {
-    @Override
-    public void open(Configuration parameters) throws Exception {
-    super.open(parameters);
-    }
-
-    @Override
-    public RuntimeContext getRuntimeContext() {
-    return super.getRuntimeContext();
-    }
-
-    @Override
-    public void flatMap(Integer integer, Collector<Integer> collector) throws Exception {
-
-    }
-
-    @Override
-    public void close() throws Exception {
-    super.close();
-    }
-};
-```
-
-```java
-StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-env.setParallelism(1);
-
-env
-    .fromElements(1, 2, 3)
-    .map(new RichMapFunction<Integer, Integer>() {
-      @Override
-      public Integer map(Integer value) throws Exception {
-        return value * 2;
-      }
-    })
-    .print();
-
-env.execute();
-```
-
-### 写入下游设备
+Flink 部署应该和不同的资源管理平台进行集成，我们其实不希望 slot 不足就报错的情况，所以需要资源管理平台。
 
 ::: tip
 TODO

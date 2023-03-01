@@ -1,8 +1,8 @@
 ---
 title: Linux-02-实际操作篇
-category:
+categories:
 - base
-tag:
+tags:
 - linux
 author: causes
 ---

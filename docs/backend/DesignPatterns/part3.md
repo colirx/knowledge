@@ -1,8 +1,8 @@
 ---
 title: 设计模式-03-结构型模式
-category:
+categories:
 - backend
-tag:
+tags:
 - designPatterns
 author: causes
 ---

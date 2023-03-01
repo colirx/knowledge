@@ -1,8 +1,8 @@
 ---
 title: Concurrent-01-基础
-category:
+categories:
 - backend
-tag:
+tags:
 - concurrent
 author: causes
 ---

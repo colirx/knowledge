@@ -1,8 +1,8 @@
 ---
 title: Hadoop-02-HDFS
-category:
+categories:
 - bigdata
-tag:
+tags:
   - hadoop
 author: causes
 ---
