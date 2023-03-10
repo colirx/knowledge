@@ -23,22 +23,17 @@
 
     - `README.md`
     - `docs`：这里是编写文章内容的地方，为的是让笔记通过 CI 自动部署到博客上。
-        - `README.md`：VuePress 的说明。
+        - `index.md`：VuePress 的说明。
         - `/.vuepress/`：VuePress 的一些配置和公共资源。
-        - `/base/*`：存放一些通用技能，例如《计算机网络》、《计算机组成原理》、《数据结构》、《设计模式》等。
-        - `/frontend/*`：前端专业技能。
-        - `/backend/*`：后端专业技能。
-        - `/bigdata/*`：大数据专业技能。
+        - `/01.base/*`：存放一些通用技能，例如《计算机网络》、《计算机组成原理》、《数据结构》、《设计模式》等。
+        - `/02.bigdata/*`：大数据专业技能。
+        - `/03.backend/*`：后端专业技能。
     - `package.json`：VuePress 的配置。
 
-    如果之后知识库目录变动，会 at 所有人，并且更改 `README.md` 文件的说明，你可以首先在本地运行一下，看看内容是不是自己想要的：
+    如果之后知识库目录变动，会更改 `README.md` 文件的说明，你可以首先在本地运行一下，看看内容是不是自己想要的：
 
     ```yarn
     yarn install
-    yarn docs:dev
+    yarn dev
     ```
-
-    之后进入到 `http://localhost:8080/knowledge/` 查看页面，和远程的没有任何区别。
-
 1. [知识库博客地址](http://causes.cloud/)。
-1. 其他[注意事项](http://causes.cloud/about)。
