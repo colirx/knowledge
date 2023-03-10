@@ -6,7 +6,7 @@ pages:
     - rm -rf public/*
     - rm -rf docs/.vuepress/dist
     - yarn install
-    - yarn docs:build --dest public
+    - yarn build --dest public
   artifacts:
     paths:
       - public
