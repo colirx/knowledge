@@ -3,6 +3,7 @@ pages:
     paths:
       - node_modules/
   script:
+    - nvm use v12.20.1
     - rm -rf public/*
     - rm -rf docs/.vuepress/dist
     - yarn install
