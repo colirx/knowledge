@@ -36,4 +36,4 @@
     yarn install
     yarn dev
     ```
-1. [知识库博客地址](http://causes.cloud/)。
+1. [知识库博客地址](http://causes.site/)。
