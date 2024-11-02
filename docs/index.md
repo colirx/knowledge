@@ -10,12 +10,24 @@ features:
   - title: base
     details: 基础
     link: /pages/da0ae6/
+  - title: frontend
+    details: 前端
+    link: /pages/abb883/
+  - title: backend
+    details: 后端
+    link: /pages/562fe9/
+  - title: ssm
+    details: ssm
+    link: /pages/ea3b1d/
+  - title: 微服务
+    details: 微服务
+    link: /pages/2c4a6c/
   - title: bigdata
     details: 大数据
     link: /pages/e71b43
-  - title: backend
-    details: 后端
-    link: /pages/562fe9
+  - title: python
+    details: python
+    link: /pages/5bc5e7/
 ---
 
 ## 使用到的技术点
