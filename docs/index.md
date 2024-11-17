@@ -16,18 +16,15 @@ features:
   - title: backend
     details: 后端
     link: /pages/562fe9/
-  - title: ssm
-    details: ssm
+  - title: java
+    details: java
     link: /pages/ea3b1d/
-  - title: 微服务
-    details: 微服务
-    link: /pages/2c4a6c/
   - title: bigdata
     details: 大数据
     link: /pages/e71b43
   - title: python
     details: python
-    link: /pages/5bc5e7/
+    link: /pages/acba34/
 ---
 
 ## 使用到的技术点
