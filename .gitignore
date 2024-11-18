@@ -25,3 +25,4 @@ urls.txt
 .temp
 .cache
 temps
+yarn.lock
