@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: use nodejs 22.11.0
+        uses: actions/setup-node@v2
+        with:
+          node-version: '22.11.0'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: yarn install, build
+        run: |
+          yarn install
+          yarn build
+        env:
+          CI: true
+          
+      - name: deploy
+        uses: JamesIves/github-pages-deploy-action@releases/v3
+        with:
+          # 发布到指定分支
+          BRANCH: colirx-pages
+          # 构建成果所在目录,默认位置都是在根目录
+          FOLDER:  ./docs/.vuepress/dist
